@@ -1,0 +1,12 @@
+name = "forum-api"
+type = "javascript"
+account_id = ""
+workers_dev = true
+kv-namespaces = [
+]
+
+[env.production]
+route = ""
+zone_id = ""
+kv-namespaces = [
+]

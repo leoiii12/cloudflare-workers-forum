@@ -1,0 +1,15 @@
+config:
+  target: "TBR"
+  phases:
+    - duration: 120
+      arrivalRate: 100
+  defaults:
+    headers:
+      Content-Type: "application/json"
+      Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlYSI6ImNob2ltYW5raW5AZ21haWwuY29tIiwiaWF0IjoxNTc0OTA4MzQ4fQ.E33lxtZJX6Ga7EQ_1yf-aEmjLLdY2jW9mEvWThEP3ZI"
+scenarios:
+  - flow:
+      - post:
+          url: "/post/getPosts"
+          json:
+            categoryId: "31d8d48a7adaae3234afe59d5c702c90144cb5fde976567a9f50ce601b2a9227"

@@ -1,0 +1,105 @@
+@host = TBR
+@jwt = TBR
+
+###
+
+POST https://{{host}}/user/signUp HTTP/1.1
+Content-Type: application/json
+
+{
+  "emailAddress": "TBR",
+  "password": "12345678"
+}
+
+###
+
+POST https://{{host}}/user/authorize HTTP/1.1
+Content-Type: application/json
+
+{
+  "emailAddress": "TBR",
+  "password": "12345678"
+}
+
+###
+
+POST https://{{host}}/user/getUsers HTTP/1.1
+Content-Type: application/json
+
+{
+  "ids": [
+    "7d0bcffef890fe9c1aa833160db33b4c5862513d25a5a0856f02096816292611"
+  ]
+}
+
+###
+
+POST https://{{host}}/category/createCategory HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{jwt}}
+
+{
+  "title": "吹水台"
+}
+
+###
+
+POST https://{{host}}/category/getCategories HTTP/1.1
+Content-Type: application/json
+
+###
+
+POST https://{{host}}/post/createPost HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{jwt}}
+
+{
+  "title": "Do you hear the people sing?",
+  "paragraphs": [
+    "Hello",
+    "World"
+  ],
+  "categoryId": "31d8d48a7adaae3234afe59d5c702c90144cb5fde976567a9f50ce601b2a9227"
+}
+
+###
+
+POST https://{{host}}/post/getPosts HTTP/1.1
+Content-Type: application/json
+
+{
+  "categoryId": "31d8d48a7adaae3234afe59d5c702c90144cb5fde976567a9f50ce601b2a9227"
+}
+
+###
+
+POST https://{{host}}/post/getUserPosts HTTP/1.1
+Content-Type: application/json
+
+{
+  "userId": "7d0bcffef890fe9c1aa833160db33b4c5862513d25a5a0856f02096816292611"
+}
+
+###
+
+POST https://{{host}}/reply/createReply HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{jwt}}
+
+{
+  "postId": "20191130172116068_T2i6d2Ff",
+  "title": "Great ah, working la",
+  "paragraphs": [
+    "Byte",
+    "Yo"
+  ]
+}
+
+###
+
+POST https://{{host}}/reply/getReplies HTTP/1.1
+Content-Type: application/json
+
+{
+  "postId": "20191130172116068_T2i6d2Ff"
+}
