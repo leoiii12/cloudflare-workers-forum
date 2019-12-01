@@ -1,7 +1,9 @@
+import { IPropertyDef } from './propertyDef'
+
 export interface IRouteDef {
   name: string
   path: string
   methods: string[]
-  inputProperties: Array<{ name: string; decorators: string[]; type: string }>
-  outputProperties: Array<{ name: string; decorators: string[]; type: string }>
+  inputProperties: IPropertyDef[]
+  outputProperties: IPropertyDef[]
 }
