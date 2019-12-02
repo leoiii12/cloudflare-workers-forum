@@ -1,1 +1,3 @@
-export interface IEnumDef {}
+export interface IEnumDef {
+  [name: string]: string | number
+}

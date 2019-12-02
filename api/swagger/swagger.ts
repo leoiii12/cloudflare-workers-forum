@@ -1,137 +1,15 @@
-import {
-  ArrayLiteralExpression,
-  ClassDeclaration,
-  Identifier,
-  ObjectLiteralExpression,
-  Project,
-  StringLiteral,
-  SyntaxKind,
-  VariableDeclaration,
-} from 'ts-morph'
+import { Project } from 'ts-morph'
 
 import { IEnumDef } from './enumDef'
 import { IPropertyDef } from './propertyDef'
 import { IRouteDef } from './routeDef'
 import { SwaggerUtils } from './swaggerUtils'
+import { OpenApiV3 } from './openApi'
 
 export class Swagger {
-  private static getRouteDefs(project: Project) {
-    const routeDefs: IRouteDef[] = []
-
-    const sourceFiles = project.getSourceFiles('./src/func/*/index.ts')
-
-    sourceFiles.forEach(sourceFile => {
-      sourceFile.forEachDescendant(node => {
-        switch (node.getKind()) {
-          case SyntaxKind.VariableDeclaration:
-            const variableDecl = node as VariableDeclaration
-            const variableDeclChildren = variableDecl.forEachChildAsArray()
-
-            // Is a Route Module
-            if (
-              variableDeclChildren.length !== 3 ||
-              variableDeclChildren[0].getKind() !== SyntaxKind.Identifier ||
-              variableDeclChildren[1].getKind() !== SyntaxKind.TypeReference ||
-              variableDeclChildren[1].getText() !== 'IRouteModule' ||
-              variableDeclChildren[2].getKind() !==
-                SyntaxKind.ObjectLiteralExpression
-            ) {
-              return
-            }
-
-            // Routes
-            const objectLiteralExpression = variableDeclChildren[2] as ObjectLiteralExpression
-            objectLiteralExpression.forEachChild(
-              routeObjectPropertyAssignment => {
-                const children = routeObjectPropertyAssignment.forEachChildAsArray()
-
-                if (
-                  children.length !== 2 ||
-                  children[0].getKind() !== SyntaxKind.Identifier ||
-                  children[1].getKind() !== SyntaxKind.ObjectLiteralExpression
-                ) {
-                  return
-                }
-
-                const routeNameIdentifier = children[0] as Identifier
-                const routeObjectLiteralExpression = children[1] as ObjectLiteralExpression
-
-                // Is a Route
-                const propertyAssignments = routeObjectLiteralExpression.getChildrenOfKind(
-                  SyntaxKind.PropertyAssignment,
-                )
-                if (propertyAssignments.length !== 5) {
-                  return
-                }
-
-                const routeDef = {
-                  name: routeNameIdentifier.getText(),
-                  path: '',
-                  methods: [] as string[],
-                  inputProperties: [] as IPropertyDef[],
-                  outputProperties: [] as IPropertyDef[],
-                }
-
-                // Handle the Route
-                for (const propertyAssignment of propertyAssignments) {
-                  const children = propertyAssignment.forEachChildAsArray()
-                  const keyIdentifier = children[0] as Identifier
-                  const valueLiteral = children[1]
-
-                  switch (keyIdentifier.getText()) {
-                    case 'path':
-                      routeDef.path = (valueLiteral as StringLiteral).getLiteralValue()
-                      break
-                    case 'methods':
-                      routeDef.methods = (valueLiteral as ArrayLiteralExpression)
-                        .forEachChildAsArray()
-                        .map(c => (c as StringLiteral).getLiteralValue())
-                      break
-                    case 'input':
-                      ;(valueLiteral as Identifier)
-                        .getDefinitions()
-                        .forEach(definition => {
-                          const classDeclaration = definition
-                            .getNode()
-                            .getParentOrThrow() as ClassDeclaration
-
-                          routeDef.inputProperties = SwaggerUtils.getClassProperties(
-                            classDeclaration,
-                          )
-                        })
-
-                      break
-                    case 'output':
-                      ;(valueLiteral as Identifier)
-                        .getDefinitions()
-                        .forEach(definition => {
-                          const classDeclaration = definition
-                            .getNode()
-                            .getParentOrThrow() as ClassDeclaration
-
-                          routeDef.outputProperties = SwaggerUtils.getClassProperties(
-                            classDeclaration,
-                          )
-                        })
-
-                      break
-                  }
-                }
-
-                routeDefs.push(routeDef)
-              },
-            )
-
-            break
-        }
-      })
-    })
-
-    return routeDefs
-  }
-
   public project: Project
-  public referenceTypes: {
+
+  private referenceTypes: {
     [typeFullPath: string]: IPropertyDef[] | IEnumDef
   } = {}
   private routeDefs: IRouteDef[]
@@ -141,7 +19,7 @@ export class Swagger {
       tsConfigFilePath: './tsconfig.json',
     })
 
-    this.routeDefs = Swagger.getRouteDefs(this.project)
+    this.routeDefs = SwaggerUtils.getPlainRouteDefs(this.project)
 
     this.routeDefs
       .reduce(
@@ -160,7 +38,7 @@ export class Swagger {
       })
   }
 
-  public getRouteDefs() {
+  private getRouteDefs() {
     return this.routeDefs.map(rd => {
       rd.outputProperties = rd.outputProperties.map(op => {
         op.arrayDepth = op.type.split('[]').length - 1
@@ -217,11 +95,19 @@ export class Swagger {
 
     const enumDeclaration = sourceFile.getEnum(className.replace(/\[\]/g, ''))
     if (enumDeclaration !== undefined) {
-      enumDeclaration.getMembers().map(m => {
-        m.getValue()
+      const enumValues = enumDeclaration.getMembers().map(m => {
+        return { name: m.getName(), value: m.getValue() }
       })
 
-      return {} as IEnumDef
+      const enumDef: IEnumDef = {}
+      for (const enumValue of enumValues) {
+        if (enumValue === undefined) {
+          throw new Error('Enums does not allow undefined value.')
+        }
+        enumDef[enumValue.name] = enumValue.value as string | number
+      }
+
+      return enumDef
     }
 
     throw new Error()
