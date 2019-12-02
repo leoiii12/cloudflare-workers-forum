@@ -4,7 +4,7 @@ import { IEnumDef } from './enumDef'
 import { IPropertyDef } from './propertyDef'
 import { IRouteDef } from './routeDef'
 import { SwaggerUtils } from './swaggerUtils'
-import { OpenApiV3 } from './openApi'
+import { SwaggerDocV2, Operation, PathItem } from './swaggerDoc'
 
 export class Swagger {
   public project: Project
@@ -23,11 +23,11 @@ export class Swagger {
 
     this.routeDefs
       .reduce(
-        (pv, cv) => pv.concat(cv.outputProperties),
-        [] as Array<{ name: string; decorators: string[]; type: string }>,
+        (pv, cv) => pv.concat(cv.outputType),
+        [] as Array<string | undefined>,
       )
-      .map(p => p.type)
-      .filter(type => type.startsWith('import'))
+      .filter(type => type !== undefined && type.startsWith('import'))
+      .map(type => type as string)
       .forEach(typeFullPath => {
         const type = this.lookUpType(this.project, typeFullPath)
         if (type === undefined) {
@@ -38,24 +38,68 @@ export class Swagger {
       })
   }
 
-  private getRouteDefs() {
-    return this.routeDefs.map(rd => {
-      rd.outputProperties = rd.outputProperties.map(op => {
-        op.arrayDepth = op.type.split('[]').length - 1
-        op.type = op.type.replace(/\[\]/g, '')
+  public getSwaggerDoc(): SwaggerDocV2 {
+    const paths: { [path: string]: PathItem } = {}
 
-        return op
-      })
+    for (const routeDef of this.routeDefs) {
+      const pathItem: PathItem = {}
 
-      rd.inputProperties = rd.inputProperties.map(op => {
-        op.arrayDepth = op.type.split('[]').length - 1
-        op.type = op.type.replace(/\[\]/g, '')
+      for (const method of routeDef.methods) {
+        const operation: Operation = {
+          operationId: `${routeDef.path}_${method}`,
+          produces: ['application/json'],
+          consumes: ['application/json'],
+          parameters: [],
+          responses: {
+            200: {
+              description: 'Success',
+              $ref:
+                routeDef.outputType !== undefined
+                  ? `#/definitions/${
+                      SwaggerUtils.parseTypeFullPath(routeDef.outputType)
+                        .className
+                    }`
+                  : undefined,
+            },
+          },
+        }
 
-        return op
-      })
+        if (routeDef.inputType !== undefined) {
+          const parameter = {
+            in: 'body',
+            name: 'body',
+            required: true,
+            schema: {
+              $ref: `#/definitions/${
+                SwaggerUtils.parseTypeFullPath(routeDef.inputType).className
+              }`,
+            },
+          }
+          ;(operation.parameters as any).push(parameter)
+        }
 
-      return rd
-    })
+        pathItem[method] = operation
+      }
+
+      paths[routeDef.path] = pathItem
+    }
+
+    const infoTitle = 'MySwaggerDoc'
+    const infoVersion = '1.0.0'
+    const host = 'forum-api.lecom.cloud'
+
+    const swaggerDocV2: SwaggerDocV2 = {
+      swagger: '2.0',
+      info: {
+        title: infoTitle,
+        version: infoVersion,
+      },
+      paths,
+      host,
+      schemes: ['https'],
+    }
+
+    return swaggerDocV2
   }
 
   private lookUpType(
@@ -66,7 +110,9 @@ export class Swagger {
       return this.referenceTypes[typeFullPath]
     }
 
-    const { importPath, className } = SwaggerUtils.getTypeFullPath(typeFullPath)
+    const { importPath, className } = SwaggerUtils.parseTypeFullPath(
+      typeFullPath,
+    )
 
     const sourceFile = project.getSourceFile(`${importPath}.ts`)
     if (sourceFile === undefined) {

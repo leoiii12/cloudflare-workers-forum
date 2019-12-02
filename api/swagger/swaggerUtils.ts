@@ -13,7 +13,7 @@ import { IPropertyDef } from './propertyDef'
 import { IRouteDef } from './routeDef'
 
 export class SwaggerUtils {
-  public static getTypeFullPath(
+  public static parseTypeFullPath(
     typeImportPath: string,
   ): { importPath: string; className: string } {
     const arr = new RegExp(/import\("(.*?)\"\).(.*)/).exec(typeImportPath)
@@ -102,12 +102,12 @@ export class SwaggerUtils {
                   return
                 }
 
-                const routeDef = {
+                const routeDef: IRouteDef = {
                   name: routeNameIdentifier.getText(),
                   path: '',
-                  methods: [] as string[],
-                  inputProperties: [] as IPropertyDef[],
-                  outputProperties: [] as IPropertyDef[],
+                  methods: [],
+                  inputType: undefined,
+                  outputType: undefined,
                 }
 
                 // Handle the Route
@@ -121,21 +121,32 @@ export class SwaggerUtils {
                       routeDef.path = (valueLiteral as StringLiteral).getLiteralValue()
                       break
                     case 'methods':
-                      routeDef.methods = (valueLiteral as ArrayLiteralExpression)
+                      const methods = (valueLiteral as ArrayLiteralExpression)
                         .forEachChildAsArray()
                         .map(c => (c as StringLiteral).getLiteralValue())
+                        .map(m => m.toLowerCase())
+
+                      if (
+                        methods.filter(m => m === 'post' || m === 'get')
+                          .length !== methods.length
+                      ) {
+                        throw new Error()
+                      }
+
+                      routeDef.methods = methods as Array<'post' | 'get'>
                       break
                     case 'input':
                       ;(valueLiteral as Identifier)
                         .getDefinitions()
                         .forEach(definition => {
-                          const classDeclaration = definition
-                            .getNode()
-                            .getParentOrThrow() as ClassDeclaration
+                          const type = definition.getNode().getType()
+                          if (type.isUndefined()) {
+                            return
+                          }
 
-                          routeDef.inputProperties = SwaggerUtils.getClassProperties(
-                            classDeclaration,
-                          )
+                          routeDef.inputType = type
+                            .getNonNullableType()
+                            .getText()
                         })
 
                       break
@@ -143,13 +154,14 @@ export class SwaggerUtils {
                       ;(valueLiteral as Identifier)
                         .getDefinitions()
                         .forEach(definition => {
-                          const classDeclaration = definition
-                            .getNode()
-                            .getParentOrThrow() as ClassDeclaration
+                          const type = definition.getNode().getType()
+                          if (type.isUndefined()) {
+                            return
+                          }
 
-                          routeDef.outputProperties = SwaggerUtils.getClassProperties(
-                            classDeclaration,
-                          )
+                          routeDef.outputType = type
+                            .getNonNullableType()
+                            .getText()
                         })
 
                       break

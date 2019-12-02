@@ -1,9 +1,7 @@
-import { IPropertyDef } from './propertyDef'
-
 export interface IRouteDef {
   name: string
   path: string
-  methods: string[]
-  inputProperties: IPropertyDef[]
-  outputProperties: IPropertyDef[]
+  methods: Array<'post' | 'get'>
+  inputType: string | undefined
+  outputType: string | undefined
 }
