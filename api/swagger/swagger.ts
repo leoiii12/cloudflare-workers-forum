@@ -4,9 +4,20 @@ import { IEnumDef } from './enumDef'
 import { IPropertyDef } from './propertyDef'
 import { IRouteDef } from './routeDef'
 import { SwaggerUtils } from './swaggerUtils'
-import { SwaggerDocV2, Operation, PathItem } from './swaggerDoc'
+import {
+  SwaggerDocV2,
+  Operation,
+  PathItem,
+  BodyParameter,
+  Definitions,
+} from './swaggerDoc'
+import { type } from 'os'
 
 export class Swagger {
+  public infoTitle = 'MySwaggerDoc'
+  public infoVersion = '1.0.0'
+  public host = 'forum-api.lecom.cloud'
+
   public project: Project
 
   private referenceTypes: {
@@ -39,63 +50,76 @@ export class Swagger {
   }
 
   public getSwaggerDoc(): SwaggerDocV2 {
-    const paths: { [path: string]: PathItem } = {}
+    const paths = this.routeDefs
+      .map(routeDef => {
+        const pathItem: PathItem = {}
 
-    for (const routeDef of this.routeDefs) {
-      const pathItem: PathItem = {}
-
-      for (const method of routeDef.methods) {
-        const operation: Operation = {
-          operationId: `${routeDef.path}_${method}`,
-          produces: ['application/json'],
-          consumes: ['application/json'],
-          parameters: [],
-          responses: {
-            200: {
-              description: 'Success',
-              $ref:
-                routeDef.outputType !== undefined
-                  ? `#/definitions/${
-                      SwaggerUtils.parseTypeFullPath(routeDef.outputType)
-                        .className
-                    }`
-                  : undefined,
-            },
-          },
-        }
-
-        if (routeDef.inputType !== undefined) {
-          const parameter = {
-            in: 'body',
-            name: 'body',
-            required: true,
-            schema: {
-              $ref: `#/definitions/${
-                SwaggerUtils.parseTypeFullPath(routeDef.inputType).className
-              }`,
+        for (const method of routeDef.methods) {
+          const ref =
+            routeDef.outputType !== undefined
+              ? `#/definitions/${
+                  SwaggerUtils.parseTypeFullPath(routeDef.outputType).typeName
+                }`
+              : undefined
+          const operation: Operation = {
+            operationId: `${routeDef.path}_${method}`,
+            produces: ['application/json'],
+            consumes: ['application/json'],
+            parameters: [],
+            responses: {
+              200: {
+                description: 'Success',
+                $ref: ref,
+              },
             },
           }
-          ;(operation.parameters as any).push(parameter)
+
+          if (routeDef.inputType !== undefined) {
+            const ref = `#/definitions/${
+              SwaggerUtils.parseTypeFullPath(routeDef.inputType).typeName
+            }`
+            const parameter: BodyParameter = {
+              in: 'body',
+              name: 'body',
+              required: true,
+              schema: {
+                $ref: ref,
+              },
+            }
+            if (operation.parameters !== undefined) {
+              operation.parameters.push(parameter)
+            }
+          }
+
+          pathItem[method] = operation
         }
 
-        pathItem[method] = operation
-      }
+        return { path: routeDef.path, pathItem }
+      })
+      .reduce(
+        (agg, cv) => {
+          agg[cv.path] = cv.pathItem
+          return agg
+        },
+        // tslint:disable-next-line: no-object-literal-type-assertion
+        {} as { [path: string]: PathItem },
+      )
 
-      paths[routeDef.path] = pathItem
-    }
+    const definitions: Definitions = {}
 
-    const infoTitle = 'MySwaggerDoc'
-    const infoVersion = '1.0.0'
-    const host = 'forum-api.lecom.cloud'
+    Object.keys(this.referenceTypes).map(typeFullName => {
+      const { typeName } = SwaggerUtils.parseTypeFullPath(typeFullName)
+      const properties = this.referenceTypes[typeFullName]
+    })
 
     const swaggerDocV2: SwaggerDocV2 = {
       swagger: '2.0',
       info: {
-        title: infoTitle,
-        version: infoVersion,
+        title: this.infoTitle,
+        version: this.infoVersion,
       },
       paths,
-      host,
+      host: this.host,
       schemes: ['https'],
     }
 
@@ -110,7 +134,7 @@ export class Swagger {
       return this.referenceTypes[typeFullPath]
     }
 
-    const { importPath, className } = SwaggerUtils.parseTypeFullPath(
+    const { importPath, typeName } = SwaggerUtils.parseTypeFullPath(
       typeFullPath,
     )
 
@@ -121,7 +145,7 @@ export class Swagger {
       )
     }
 
-    const classDeclaration = sourceFile.getClass(className.replace(/\[\]/g, ''))
+    const classDeclaration = sourceFile.getClass(typeName.replace(/\[\]/g, ''))
     if (classDeclaration !== undefined) {
       const classProperties = SwaggerUtils.getClassProperties(classDeclaration)
 
@@ -139,7 +163,7 @@ export class Swagger {
       return classProperties
     }
 
-    const enumDeclaration = sourceFile.getEnum(className.replace(/\[\]/g, ''))
+    const enumDeclaration = sourceFile.getEnum(typeName.replace(/\[\]/g, ''))
     if (enumDeclaration !== undefined) {
       const enumValues = enumDeclaration.getMembers().map(m => {
         return { name: m.getName(), value: m.getValue() }

@@ -15,7 +15,7 @@ import { IRouteDef } from './routeDef'
 export class SwaggerUtils {
   public static parseTypeFullPath(
     typeImportPath: string,
-  ): { importPath: string; className: string } {
+  ): { importPath: string; typeName: string } {
     const arr = new RegExp(/import\("(.*?)\"\).(.*)/).exec(typeImportPath)
     if (arr === null) {
       throw new Error(`The typeImportPath=[${typeImportPath}] is invalid.`)
@@ -23,7 +23,7 @@ export class SwaggerUtils {
 
     return {
       importPath: arr[1],
-      className: arr[2],
+      typeName: arr[2],
     }
   }
 
