@@ -1,19 +1,23 @@
+import { HTTP_INTERCEPTORS, HttpClient } from '@angular/common/http'
 import {
-  NgModule,
   ModuleWithProviders,
-  SkipSelf,
+  NgModule,
   Optional,
+  SkipSelf,
 } from '@angular/core'
-import { Configuration } from './configuration'
-import { HttpClient } from '@angular/common/http'
 
 import { DefaultService } from './api/default.service'
+import { Configuration } from './configuration'
+import { DataInterceptor } from './data-interceptor'
 
 @NgModule({
   imports: [],
   declarations: [],
   exports: [],
-  providers: [DefaultService],
+  providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: DataInterceptor, multi: true },
+    DefaultService,
+  ],
 })
 export class ApiModule {
   public static forRoot(
