@@ -41,6 +41,9 @@ export async function handleRequest(request: Request) {
   if (request.url === '/' && request.method === 'GET') {
     return Out.ok('Hello World.')
   }
+  if (request.method === 'OPTIONS') {
+    return Out.ok()
+  }
 
   const modules = [CategoryModule, PostModule, ReplyModule, UserModule]
 
