@@ -1,7 +1,6 @@
 import { Project } from 'ts-morph'
 
 import { IEnumDef } from './enumDef'
-import { IPropertyDef } from './propertyDef'
 import { IRouteDef } from './routeDef'
 import {
   BodyParameter,
@@ -15,18 +14,19 @@ import { SwaggerUtils } from './swaggerUtils'
 import { TypeHolder } from './typeHolder'
 
 export class Swagger {
-  public infoTitle = 'MySwaggerDoc'
-  public infoVersion = '1.0.0'
-  public host = 'forum-api.lecom.cloud'
-
   private project: Project
 
   private typeHolder: TypeHolder = new TypeHolder()
   private routeDefs: IRouteDef[]
 
-  constructor() {
+  constructor(
+    public host = 'forum-api.lecom.cloud',
+    public infoVersion = '1.0.0',
+    public infoTitle = 'MySwaggerDoc',
+    public tsConfigFilePath = './tsconfig.json',
+  ) {
     this.project = new Project({
-      tsConfigFilePath: './tsconfig.json',
+      tsConfigFilePath,
     })
 
     this.routeDefs = SwaggerUtils.getPlainRouteDefs(this.project)
@@ -55,7 +55,7 @@ export class Swagger {
                 }`
               : undefined
           const operation: Operation = {
-            operationId: `${routeDef.path}_${method}`,
+            operationId: `${routeDef.path.replace(/\//g, '_')}_${method}`,
             produces: ['application/json'],
             consumes: ['application/json'],
             parameters: [],
@@ -107,6 +107,10 @@ export class Swagger {
         )
 
         if (Array.isArray(referenceType)) {
+          const required = referenceType
+            .filter(rt => rt.isNullableOrUndefined === false)
+            .map(rt => rt.name)
+
           const definition: Schema = {
             type: 'object',
             properties: referenceType.reduce(
@@ -137,6 +141,7 @@ export class Swagger {
               // tslint:disable-next-line: no-object-literal-type-assertion
               {} as { [k: string]: Schema },
             ),
+            required: required.length > 0 ? required : undefined,
           }
 
           return { typeName, definition }
