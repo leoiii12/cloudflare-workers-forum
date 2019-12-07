@@ -4,7 +4,7 @@ export class Out<T> {
   public static out(status: number, body: any): Response {
     return new Response(JSON.stringify(body), {
       headers: {
-        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Headers': 'Authorization,Content-Type',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Request-Method': 'OPTIONS,GET,POST',
         'Content-Type': 'application/json',

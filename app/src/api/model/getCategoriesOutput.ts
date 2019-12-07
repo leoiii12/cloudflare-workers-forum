@@ -12,5 +12,5 @@
 import { CategoryDto } from './categoryDto'
 
 export interface GetCategoriesOutput {
-  categories?: CategoryDto
+  categories?: CategoryDto[]
 }

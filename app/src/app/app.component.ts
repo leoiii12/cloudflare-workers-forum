@@ -1,9 +1,11 @@
-import { DefaultService } from 'src/api'
+import { flatMap } from 'rxjs/operators'
 
 import { Component } from '@angular/core'
 import { SplashScreen } from '@ionic-native/splash-screen/ngx'
 import { StatusBar } from '@ionic-native/status-bar/ngx'
 import { Platform } from '@ionic/angular'
+
+import { DefaultService, GetCategoriesOutput, GetPostsOutput } from '../api'
 
 @Component({
   selector: 'app-root',
@@ -38,17 +40,27 @@ export class AppComponent {
       this.statusBar.styleDefault()
       this.splashScreen.hide()
 
-
       this.defaultService
         .userauthorizePost({
-          emailAddress: "choimankin@gmail.com",
-          password: "12345678"
+          emailAddress: 'choimankin@gmail.com',
+          password: '12345678',
         })
-        .subscribe((output) => {
+        .subscribe(output => {
           console.log(output)
         })
 
+      this.defaultService
+        .categorygetCategoriesPost()
+        .pipe(
+          flatMap((getCategoriesOutput: GetCategoriesOutput) => {
+            return this.defaultService.postgetPostsPost({
+              categoryId: getCategoriesOutput.categories[0].id,
+            })
+          }),
+        )
+        .subscribe((getPostsOutput: GetPostsOutput) => {
+          console.log(getPostsOutput)
+        })
     })
   }
-
 }

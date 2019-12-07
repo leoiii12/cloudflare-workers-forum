@@ -21,7 +21,7 @@ export class DataInterceptor implements HttpInterceptor {
   ): Observable<HttpEvent<any>> {
     let tokenizedReq = req.clone({
       setHeaders: {
-        'X-Authorization': 'Bearer ' + this.jwt,
+        Authorization: 'Bearer ' + this.jwt,
       },
     })
 
