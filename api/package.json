@@ -17,9 +17,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:stress": "MULTICORE=true ARTILLERY_WORKERS=4 artillery run spec/stress-test.yml",
     "format": "prettier --write \"src/**/*.{js,css,json,md,ts}\" && prettier --write \"swagger/**/*.{js,css,json,md,ts}\"",
-    "build": "parcel build src/index.ts --target node --bundle-node-modules --no-source-maps --no-minify",
     "watch": "parcel watch src/index.ts --target node --bundle-node-modules --no-source-maps",
+    "build": "parcel build src/index.ts --target node --bundle-node-modules --no-source-maps --no-minify",
     "build:prod": "parcel build src/index.ts --target node --bundle-node-modules --no-source-maps",
+    "build:doc": "ts-node swagger/index.ts",
     "preview": "wrangler preview --watch",
     "publish": "wrangler publish --env production"
   },
@@ -30,6 +31,7 @@
     "parcel-bundler": "^1.12.4",
     "prettier": "^1.19.1",
     "ts-morph": "^5.0.0",
+    "ts-node": "^8.5.4",
     "tslint": "^5.20.1",
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.7.2"

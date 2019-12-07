@@ -24,12 +24,16 @@ export class UserDto {
   }
 
   public id: string
-  public profile?: {
-    gender?: Gender
-  }
-  public meta?: {
-    numOfPosts?: number
-  }
+  public profile?: ProfileDto
+  public meta?: MetaDto
+}
+
+export class ProfileDto {
+  gender?: Gender
+}
+
+export class MetaDto {
+  numOfPosts?: number
 }
 
 export function getUserKey(id: string) {
