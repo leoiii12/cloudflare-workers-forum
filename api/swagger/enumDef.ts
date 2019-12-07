@@ -1,3 +1,6 @@
 export interface IEnumDef {
-  [name: string]: string | number
+  t: 'IEnumDef'
+  values: {
+    [name: string]: string | number
+  }
 }

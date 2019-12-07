@@ -3,26 +3,25 @@ import { Project } from 'ts-morph'
 import { IEnumDef } from './enumDef'
 import { IPropertyDef } from './propertyDef'
 import { IRouteDef } from './routeDef'
-import { SwaggerUtils } from './swaggerUtils'
 import {
-  SwaggerDocV2,
-  Operation,
-  PathItem,
   BodyParameter,
   Definitions,
+  Operation,
+  PathItem,
+  Schema,
+  SwaggerDocV2,
 } from './swaggerDoc'
-import { type } from 'os'
+import { SwaggerUtils } from './swaggerUtils'
+import { TypeHolder } from './typeHolder'
 
 export class Swagger {
   public infoTitle = 'MySwaggerDoc'
   public infoVersion = '1.0.0'
   public host = 'forum-api.lecom.cloud'
 
-  public project: Project
+  private project: Project
 
-  private referenceTypes: {
-    [typeFullPath: string]: IPropertyDef[] | IEnumDef
-  } = {}
+  private typeHolder: TypeHolder = new TypeHolder()
   private routeDefs: IRouteDef[]
 
   constructor() {
@@ -32,21 +31,15 @@ export class Swagger {
 
     this.routeDefs = SwaggerUtils.getPlainRouteDefs(this.project)
 
-    this.routeDefs
-      .reduce(
-        (pv, cv) => pv.concat(cv.outputType),
-        [] as Array<string | undefined>,
-      )
-      .filter(type => type !== undefined && type.startsWith('import'))
-      .map(type => type as string)
-      .forEach(typeFullPath => {
-        const type = this.lookUpType(this.project, typeFullPath)
-        if (type === undefined) {
-          return
-        }
-
-        this.referenceTypes[typeFullPath] = type
-      })
+    this.typeHolder.populateTypes(
+      this.project,
+      this.routeDefs
+        .reduce((agg, cv) => {
+          return agg.concat(cv.inputType).concat(cv.outputType)
+        }, [] as Array<string | undefined>)
+        .filter(type => type !== undefined && type.startsWith('import'))
+        .map(type => type as string),
+    )
   }
 
   public getSwaggerDoc(): SwaggerDocV2 {
@@ -68,7 +61,6 @@ export class Swagger {
             parameters: [],
             responses: {
               200: {
-                description: 'Success',
                 $ref: ref,
               },
             },
@@ -105,12 +97,68 @@ export class Swagger {
         {} as { [path: string]: PathItem },
       )
 
-    const definitions: Definitions = {}
+    const definitions: Definitions = this.typeHolder
+      .getIndexedTypeNames()
+      .map(typeFullName => {
+        const { typeName } = SwaggerUtils.parseTypeFullPath(typeFullName)
+        const referenceType = this.typeHolder.lookUpType(
+          this.project,
+          typeFullName,
+        )
 
-    Object.keys(this.referenceTypes).map(typeFullName => {
-      const { typeName } = SwaggerUtils.parseTypeFullPath(typeFullName)
-      const properties = this.referenceTypes[typeFullName]
-    })
+        if (Array.isArray(referenceType)) {
+          const definition: Schema = {
+            type: 'object',
+            properties: referenceType.reduce(
+              (agg, cv) => {
+                switch (cv.type) {
+                  case 'boolean':
+                  case 'number':
+                  case 'string':
+                    agg[cv.name] = { type: cv.type }
+                    break
+                  default:
+                    if (cv.type.startsWith('import')) {
+                      const { typeName } = SwaggerUtils.parseTypeFullPath(
+                        cv.type,
+                      )
+                      agg[cv.name] = { $ref: `#/definitions/${typeName}` }
+                    } else {
+                      throw new Error(
+                        `An undefined type is found for ${typeName}`,
+                      )
+                    }
+
+                    break
+                }
+
+                return agg
+              },
+              // tslint:disable-next-line: no-object-literal-type-assertion
+              {} as { [k: string]: Schema },
+            ),
+          }
+
+          return { typeName, definition }
+        } else if (referenceType.t === 'IEnumDef') {
+          const definition: Schema = {
+            type: 'number',
+            enum: Object.values((referenceType as IEnumDef).values) as any,
+          }
+
+          return { typeName, definition }
+        }
+
+        throw new Error(`Not yet handled this kind of reference types.`)
+      })
+      .reduce(
+        (agg, cv) => {
+          agg[cv.typeName] = cv.definition
+          return agg
+        },
+        // tslint:disable-next-line: no-object-literal-type-assertion
+        {} as Definitions,
+      )
 
     const swaggerDocV2: SwaggerDocV2 = {
       swagger: '2.0',
@@ -121,65 +169,9 @@ export class Swagger {
       paths,
       host: this.host,
       schemes: ['https'],
+      definitions: definitions,
     }
 
     return swaggerDocV2
-  }
-
-  private lookUpType(
-    project: Project,
-    typeFullPath: string,
-  ): IEnumDef | IPropertyDef[] {
-    if (Object.keys(this.referenceTypes).includes(typeFullPath)) {
-      return this.referenceTypes[typeFullPath]
-    }
-
-    const { importPath, typeName } = SwaggerUtils.parseTypeFullPath(
-      typeFullPath,
-    )
-
-    const sourceFile = project.getSourceFile(`${importPath}.ts`)
-    if (sourceFile === undefined) {
-      throw new Error(
-        `Can't locate the source file with typeFullPath=[${typeFullPath}]`,
-      )
-    }
-
-    const classDeclaration = sourceFile.getClass(typeName.replace(/\[\]/g, ''))
-    if (classDeclaration !== undefined) {
-      const classProperties = SwaggerUtils.getClassProperties(classDeclaration)
-
-      // This is not good
-      const importingTypes = classProperties.filter(cp =>
-        cp.type.startsWith('import'),
-      )
-      for (const importingType of importingTypes) {
-        this.referenceTypes[importingType.type] = this.lookUpType(
-          project,
-          importingType.type,
-        )
-      }
-
-      return classProperties
-    }
-
-    const enumDeclaration = sourceFile.getEnum(typeName.replace(/\[\]/g, ''))
-    if (enumDeclaration !== undefined) {
-      const enumValues = enumDeclaration.getMembers().map(m => {
-        return { name: m.getName(), value: m.getValue() }
-      })
-
-      const enumDef: IEnumDef = {}
-      for (const enumValue of enumValues) {
-        if (enumValue === undefined) {
-          throw new Error('Enums does not allow undefined value.')
-        }
-        enumDef[enumValue.name] = enumValue.value as string | number
-      }
-
-      return enumDef
-    }
-
-    throw new Error()
   }
 }

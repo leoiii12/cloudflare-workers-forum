@@ -1,12 +1,12 @@
 import {
+  ArrayLiteralExpression,
   ClassDeclaration,
+  Identifier,
+  ObjectLiteralExpression,
   Project,
+  StringLiteral,
   SyntaxKind,
   VariableDeclaration,
-  ObjectLiteralExpression,
-  Identifier,
-  StringLiteral,
-  ArrayLiteralExpression,
 } from 'ts-morph'
 
 import { IPropertyDef } from './propertyDef'
@@ -37,6 +37,7 @@ export class SwaggerUtils {
       const type = instanceMember.getType()
 
       const property: IPropertyDef = {
+        t: 'IPropertyDef',
         decorators: instanceMember.getDecorators().map(d => d.getText()),
         name: instanceMember.getName(),
         type: type
