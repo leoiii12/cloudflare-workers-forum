@@ -1,5 +1,6 @@
 import { ApiModule } from 'src/api'
 
+import { HttpClientModule } from '@angular/common/http'
 import { NgModule } from '@angular/core'
 import { BrowserModule } from '@angular/platform-browser'
 import { RouteReuseStrategy } from '@angular/router'
@@ -13,7 +14,13 @@ import { AppComponent } from './app.component'
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
-  imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, ApiModule],
+  imports: [
+    BrowserModule,
+    IonicModule.forRoot(),
+    AppRoutingModule,
+    ApiModule,
+    HttpClientModule,
+  ],
   providers: [
     StatusBar,
     SplashScreen,
