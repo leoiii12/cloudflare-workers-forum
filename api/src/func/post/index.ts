@@ -1,11 +1,8 @@
 import { IRouteModule } from '../../entity/routeModule'
 import { createPost, CreatePostInput, CreatePostOutput } from './createPost'
+import { getPost, GetPostInput, GetPostOutput } from './getPost'
 import { getPosts, GetPostsInput, GetPostsOutput } from './getPosts'
-import {
-  getUserPosts,
-  GetUserPostsInput,
-  GetUserPostsOutput,
-} from './getUserPosts'
+import { getUserPosts, GetUserPostsInput, GetUserPostsOutput } from './getUserPosts'
 
 export const PostModule: IRouteModule = {
   createPost: {
@@ -14,6 +11,13 @@ export const PostModule: IRouteModule = {
     input: CreatePostInput,
     output: CreatePostOutput,
     func: createPost,
+  },
+  getPost: {
+    path: '/post/getPost',
+    methods: ['POST'],
+    input: GetPostInput,
+    output: GetPostOutput,
+    func: getPost,
   },
   getPosts: {
     path: '/post/getPosts',

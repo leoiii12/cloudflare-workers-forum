@@ -6,6 +6,7 @@ import { KVNamespace } from '@cloudflare/workers-types'
 
 import { getUserKey, IUser } from '../../../entity'
 import { InternalServerError, UnauthorizedError } from '../../../err'
+import { sha256Encode } from '../../../lib/crypto'
 import { signJwt } from '../../../lib/jwt'
 import { Out } from '../../../lib/out'
 
@@ -26,12 +27,9 @@ export class AuthorizeOutput {
 
 export async function authorize(request: Request): Promise<Response> {
   const json = await request.json()
-  const input = (await transformAndValidate(
-    AuthorizeInput,
-    json,
-  )) as AuthorizeInput
+  const input = (await transformAndValidate(AuthorizeInput, json)) as AuthorizeInput
 
-  const id = await USERS.get(`emailAddress#${input.emailAddress}`)
+  const id = await USERS.get(`emailAddress#${await sha256Encode(input.emailAddress)}`)
   if (id === null) {
     throw new UnauthorizedError()
   }

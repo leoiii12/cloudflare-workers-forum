@@ -5,7 +5,12 @@ import { SplashScreen } from '@ionic-native/splash-screen/ngx'
 import { StatusBar } from '@ionic-native/status-bar/ngx'
 import { Platform } from '@ionic/angular'
 
-import { DefaultService, GetCategoriesOutput, GetPostsOutput } from '../api'
+import {
+  DefaultService,
+  GetCategoriesOutput,
+  GetPostsOutput,
+  PostDto,
+} from '../api'
 
 @Component({
   selector: 'app-root',
@@ -13,18 +18,7 @@ import { DefaultService, GetCategoriesOutput, GetPostsOutput } from '../api'
   styleUrls: ['app.component.scss'],
 })
 export class AppComponent {
-  public appPages = [
-    {
-      title: 'Home',
-      url: '/home',
-      icon: 'home',
-    },
-    {
-      title: 'List',
-      url: '/list',
-      icon: 'list',
-    },
-  ]
+  public posts: PostDto[]
 
   constructor(
     private platform: Platform,
@@ -59,7 +53,7 @@ export class AppComponent {
           }),
         )
         .subscribe((getPostsOutput: GetPostsOutput) => {
-          console.log(getPostsOutput)
+          this.posts = getPostsOutput.posts
         })
     })
   }

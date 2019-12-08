@@ -10,9 +10,10 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular'
 
 import { AppRoutingModule } from './app-routing.module'
 import { AppComponent } from './app.component'
+import { UserPipePipe } from './user-pipe.pipe'
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, UserPipePipe],
   entryComponents: [],
   imports: [
     BrowserModule,

@@ -14,6 +14,7 @@ import { ProfileDto } from './profileDto'
 
 export interface UserDto {
   id: string
+  name: string
   profile?: ProfileDto
   meta?: MetaDto
 }

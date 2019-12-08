@@ -17,16 +17,9 @@ export async function authorize(
   }
 
   const accessToken = headerAuthorization.replace('Bearer ', '')
-  const accessTokenObj = (await verifyJwt(
-    accessToken,
-    'TBR',
-  )) as IAccessTokenObj
+  const accessTokenObj = (await verifyJwt(accessToken, 'TBR')) as IAccessTokenObj
 
-  const userVal = await getCachedVal(
-    getUserKey(accessTokenObj.id),
-    USERS,
-    'USERS',
-  )
+  const userVal = await getCachedVal(getUserKey(accessTokenObj.id), USERS, 'USERS')
   if (userVal === null) {
     throw new UnauthorizedError()
   }

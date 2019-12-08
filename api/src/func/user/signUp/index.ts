@@ -1,6 +1,6 @@
 import { genSaltSync, hashSync } from 'bcryptjs'
 import { transformAndValidate } from 'class-transformer-validator'
-import { IsDefined, IsEmail } from 'class-validator'
+import { IsDefined, IsEmail, IsNotEmpty, IsString, Length, NotContains } from 'class-validator'
 
 import { KVNamespace } from '@cloudflare/workers-types'
 
@@ -18,7 +18,14 @@ export class SignUpInput {
   public emailAddress: string
 
   @IsDefined()
+  @Length(8)
   public password: string
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  @NotContains('#')
+  public name: string
 }
 
 export class SignUpOutput {
@@ -29,9 +36,11 @@ export async function signUp(request: Request): Promise<Response> {
   const json = await request.json()
   const input = (await transformAndValidate(SignUpInput, json)) as SignUpInput
 
-  const existingUser = await USERS.get(`emailAddress#${input.emailAddress}`)
-  if (existingUser !== null) {
-    throw new UserFriendlyError('The emailAddress is registered.')
+  if (
+    (await USERS.get(`emailAddress#${await sha256Encode(input.emailAddress)}`)) !== null ||
+    (await USERS.get(`name#${await sha256Encode(input.name)}`)) !== null
+  ) {
+    throw new UserFriendlyError('The emailAddress or name is registered.')
   }
 
   const salt = genSaltSync(8)
@@ -41,15 +50,17 @@ export async function signUp(request: Request): Promise<Response> {
   const user: IUser = {
     id: userId,
     emailAddress: input.emailAddress,
+    name: input.name,
     hash,
-    role: Role.NormalUsers,
+    roles: [Role.NormalUsers],
     profile: {},
     meta: {
       numOfPosts: 0,
     },
   }
   await USERS.put(getUserKey(userId), JSON.stringify(user))
-  await USERS.put(`emailAddress#${user.emailAddress}`, userId)
+  await USERS.put(`emailAddress#${await sha256Encode(user.emailAddress)}`, userId)
+  await USERS.put(`name#${await sha256Encode(user.name)}`, userId)
 
   const userVal = await USERS.get(getUserKey(userId))
   if (userVal === null) {

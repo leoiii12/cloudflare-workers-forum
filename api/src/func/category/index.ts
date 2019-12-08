@@ -1,9 +1,5 @@
 import { IRouteModule } from '../../entity/routeModule'
-import {
-  createCategory,
-  CreateCategoryInput,
-  CreateCategoryOutput,
-} from './createCategory'
+import { createCategory, CreateCategoryInput, CreateCategoryOutput } from './createCategory'
 import { getCategories, GetCategoriesOutput } from './getCategories'
 
 export const CategoryModule: IRouteModule = {

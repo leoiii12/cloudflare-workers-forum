@@ -1,3 +1,6 @@
+import { ArrayMaxSize } from 'class-validator'
+import { eachDayOfInterval } from 'date-fns'
+
 import { KVNamespace } from '@cloudflare/workers-types'
 
 import { InternalServerError } from './err/InternalServerError'
@@ -30,8 +33,11 @@ export async function safeHandleRequest(request: Request) {
     if (e instanceof UserFriendlyError) {
       return Out.error(e.message)
     }
+    if (Array.isArray(e)) {
+      return Out.badRequest(e)
+    }
 
-    // EXCEPTIONS.put()
+    await EXCEPTIONS.put(new Date().toISOString(), JSON.stringify(e))
 
     return Out.internalError((e as Error).message)
   }
@@ -49,10 +55,7 @@ export async function handleRequest(request: Request) {
 
   for (const module of modules) {
     for (const routeObj of Object.values(module)) {
-      if (
-        request.url.endsWith(routeObj.path) &&
-        routeObj.methods.includes(request.method)
-      ) {
+      if (request.url.endsWith(routeObj.path) && routeObj.methods.includes(request.method)) {
         return routeObj.func(request)
       }
     }

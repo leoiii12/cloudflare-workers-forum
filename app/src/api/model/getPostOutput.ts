@@ -9,9 +9,8 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
+import { PostDto } from './postDto'
 
-export interface SignUpInput {
-  emailAddress: string
-  password: string
-  name: string
+export interface GetPostOutput {
+  post: PostDto
 }

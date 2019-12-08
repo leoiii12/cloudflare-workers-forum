@@ -25,10 +25,7 @@ export class GetRepliesOutput {
 
 export async function getReplies(request: Request): Promise<Response> {
   const json = await request.json()
-  const input = (await transformAndValidate(
-    GetRepliesInput,
-    json,
-  )) as GetRepliesInput
+  const input = (await transformAndValidate(GetRepliesInput, json)) as GetRepliesInput
 
   const postVal = await POSTS.get(`id#${input.postId}`)
   if (postVal === null) {

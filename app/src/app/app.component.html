@@ -8,11 +8,11 @@
       </ion-header>
       <ion-content>
         <ion-list>
-          <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages">
-            <ion-item [routerDirection]="'root'" [routerLink]="[p.url]">
-              <ion-icon slot="start" [name]="p.icon"></ion-icon>
+          <ion-menu-toggle auto-hide="false" *ngFor="let p of posts">
+            <ion-item>
               <ion-label>
                 {{p.title}}
+                {{(p.authorUserId | userPipe | async)?.name}}
               </ion-label>
             </ion-item>
           </ion-menu-toggle>

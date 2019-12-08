@@ -61,9 +61,7 @@ async function _sign(headerPart: string, payloadPart: string, secret: string) {
     new TextEncoder().encode(`${headerPart}.${payloadPart}`),
   )
 
-  const signaturePart = myBtoa(
-    String.fromCharCode(...new Uint8Array(signature)),
-  )
+  const signaturePart = myBtoa(String.fromCharCode(...new Uint8Array(signature)))
 
   return `${headerPart}.${payloadPart}.${signaturePart}`
 }

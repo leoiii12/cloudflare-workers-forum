@@ -32,6 +32,8 @@ import { CreatePostOutput } from '../model/createPostOutput'
 import { CreateReplyInput } from '../model/createReplyInput'
 import { CreateReplyOutput } from '../model/createReplyOutput'
 import { GetCategoriesOutput } from '../model/getCategoriesOutput'
+import { GetPostInput } from '../model/getPostInput'
+import { GetPostOutput } from '../model/getPostOutput'
 import { GetPostsInput } from '../model/getPostsInput'
 import { GetPostsOutput } from '../model/getPostsOutput'
 import { GetRepliesInput } from '../model/getRepliesInput'
@@ -42,6 +44,7 @@ import { GetUsersInput } from '../model/getUsersInput'
 import { GetUsersOutput } from '../model/getUsersOutput'
 import { SignUpInput } from '../model/signUpInput'
 import { SignUpOutput } from '../model/signUpOutput'
+import { UpdateUserInput } from '../model/updateUserInput'
 
 import { BASE_PATH, COLLECTION_FORMATS } from '../variables'
 import { Configuration } from '../configuration'
@@ -248,6 +251,71 @@ export class DefaultService {
 
     return this.httpClient.post<CreatePostOutput>(
       `${this.basePath}/post/createPost`,
+      body,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress,
+      },
+    )
+  }
+
+  /**
+   *
+   *
+   * @param body
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public postGetPostPost(
+    body: GetPostInput,
+    observe?: 'body',
+    reportProgress?: boolean,
+  ): Observable<GetPostOutput>
+  public postGetPostPost(
+    body: GetPostInput,
+    observe?: 'response',
+    reportProgress?: boolean,
+  ): Observable<HttpResponse<GetPostOutput>>
+  public postGetPostPost(
+    body: GetPostInput,
+    observe?: 'events',
+    reportProgress?: boolean,
+  ): Observable<HttpEvent<GetPostOutput>>
+  public postGetPostPost(
+    body: GetPostInput,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+  ): Observable<any> {
+    if (body === null || body === undefined) {
+      throw new Error(
+        'Required parameter body was null or undefined when calling postGetPostPost.',
+      )
+    }
+
+    let headers = this.defaultHeaders
+
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = ['application/json']
+    const httpHeaderAcceptSelected:
+      | string
+      | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts)
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected)
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = ['application/json']
+    const httpContentTypeSelected:
+      | string
+      | undefined = this.configuration.selectHeaderContentType(consumes)
+    if (httpContentTypeSelected != undefined) {
+      headers = headers.set('Content-Type', httpContentTypeSelected)
+    }
+
+    return this.httpClient.post<GetPostOutput>(
+      `${this.basePath}/post/getPost`,
       body,
       {
         withCredentials: this.configuration.withCredentials,
@@ -711,5 +779,66 @@ export class DefaultService {
         reportProgress: reportProgress,
       },
     )
+  }
+
+  /**
+   *
+   *
+   * @param body
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public userUpdateUserPost(
+    body: UpdateUserInput,
+    observe?: 'body',
+    reportProgress?: boolean,
+  ): Observable<any>
+  public userUpdateUserPost(
+    body: UpdateUserInput,
+    observe?: 'response',
+    reportProgress?: boolean,
+  ): Observable<HttpResponse<any>>
+  public userUpdateUserPost(
+    body: UpdateUserInput,
+    observe?: 'events',
+    reportProgress?: boolean,
+  ): Observable<HttpEvent<any>>
+  public userUpdateUserPost(
+    body: UpdateUserInput,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+  ): Observable<any> {
+    if (body === null || body === undefined) {
+      throw new Error(
+        'Required parameter body was null or undefined when calling userUpdateUserPost.',
+      )
+    }
+
+    let headers = this.defaultHeaders
+
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = ['application/json']
+    const httpHeaderAcceptSelected:
+      | string
+      | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts)
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected)
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = ['application/json']
+    const httpContentTypeSelected:
+      | string
+      | undefined = this.configuration.selectHeaderContentType(consumes)
+    if (httpContentTypeSelected != undefined) {
+      headers = headers.set('Content-Type', httpContentTypeSelected)
+    }
+
+    return this.httpClient.post<any>(`${this.basePath}/user/updateUser`, body, {
+      withCredentials: this.configuration.withCredentials,
+      headers: headers,
+      observe: observe,
+      reportProgress: reportProgress,
+    })
   }
 }

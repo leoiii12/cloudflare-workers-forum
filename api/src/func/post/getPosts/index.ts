@@ -5,13 +5,7 @@ import { map } from 'rambda'
 
 import { KVNamespace } from '@cloudflare/workers-types'
 
-import {
-  getCategoriesPostsKey,
-  getPostIdFromCategoriesPostsKey,
-  getPostKey,
-  IPost,
-  PostDto,
-} from '../../../entity'
+import { getCategoriesPostsKey, getPostIdFromCategoriesPostsKey, getPostKey, IPost, PostDto } from '../../../entity'
 import { getCachedVals } from '../../../lib/cache'
 import { parseVals } from '../../../lib/list'
 import { Out } from '../../../lib/out'
@@ -52,10 +46,7 @@ export async function getPostIds(categoryId: string | undefined | null) {
 
 export async function getPosts(request: Request): Promise<Response> {
   const json = await request.json()
-  const input = (await transformAndValidate(
-    GetPostsInput,
-    json,
-  )) as GetPostsInput
+  const input = (await transformAndValidate(GetPostsInput, json)) as GetPostsInput
 
   const postIds = await getPostIds(input.categoryId)
   const postKeys = map<string, string>(id => getPostKey(id))(postIds)

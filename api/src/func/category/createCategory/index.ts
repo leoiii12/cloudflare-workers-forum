@@ -3,12 +3,7 @@ import { IsDefined, IsString } from 'class-validator'
 
 import { KVNamespace } from '@cloudflare/workers-types'
 
-import {
-  CategoryDto,
-  CategoryStatus,
-  getCategoryKey,
-  ICategory,
-} from '../../../entity'
+import { CategoryDto, CategoryStatus, getCategoryKey, ICategory } from '../../../entity'
 import { InternalServerError, UserFriendlyError } from '../../../err'
 import { authorize } from '../../../lib/authorize'
 import { sha256Encode } from '../../../lib/crypto'
@@ -32,10 +27,7 @@ export async function createCategory(request: Request): Promise<Response> {
   const { user } = await authorize(headerAuthorization, USERS)
 
   const text = await request.text()
-  const input = (await transformAndValidate(
-    CreateCategoryInput,
-    text,
-  )) as CreateCategoryInput
+  const input = (await transformAndValidate(CreateCategoryInput, text)) as CreateCategoryInput
 
   const categoryId = await sha256Encode(input.title)
   const existingCategoryVal = await CATEGORIES.get(getCategoryKey(categoryId))

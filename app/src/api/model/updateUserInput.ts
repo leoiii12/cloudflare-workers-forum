@@ -10,8 +10,6 @@
  * Do not edit the class manually.
  */
 
-export interface SignUpInput {
-  emailAddress: string
-  password: string
-  name: string
+export interface UpdateUserInput {
+  id: string
 }
