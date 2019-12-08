@@ -27,9 +27,14 @@ export class AuthorizeOutput {
 
 export async function authorize(request: Request): Promise<Response> {
   const json = await request.json()
-  const input = (await transformAndValidate(AuthorizeInput, json)) as AuthorizeInput
+  const input = (await transformAndValidate(
+    AuthorizeInput,
+    json,
+  )) as AuthorizeInput
 
-  const id = await USERS.get(`emailAddress#${await sha256Encode(input.emailAddress)}`)
+  const id = await USERS.get(
+    `emailAddress#${await sha256Encode(input.emailAddress)}`,
+  )
   if (id === null) {
     throw new UnauthorizedError()
   }

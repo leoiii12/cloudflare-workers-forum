@@ -23,7 +23,9 @@ export function getCategoriesPostsKey(categoryId: string, postId?: string) {
   return `CATEGORIES-POSTS-categoryId#${categoryId}-postId#${postId}`
 }
 
-const categoriesPostsRegExp = new RegExp(/CATEGORIES-POSTS-categoryId#\w+-postId#(.*)/)
+const categoriesPostsRegExp = new RegExp(
+  /CATEGORIES-POSTS-categoryId#\w+-postId#(.*)/,
+)
 export function getPostIdFromCategoriesPostsKey(key: string) {
   const matches = categoriesPostsRegExp.exec(key)
   if (matches === null) {

@@ -3,7 +3,14 @@ import { Project } from 'ts-morph'
 import { IEnumDef } from './enumDef'
 import { IPropertyDef } from './propertyDef'
 import { IRouteDef } from './routeDef'
-import { BodyParameter, Definitions, Operation, PathItem, Schema, SwaggerDocV2 } from './swaggerDoc'
+import {
+  BodyParameter,
+  Definitions,
+  Operation,
+  PathItem,
+  Schema,
+  SwaggerDocV2,
+} from './swaggerDoc'
 import { SwaggerUtils } from './swaggerUtils'
 import { TypeHolder } from './typeHolder'
 
@@ -44,7 +51,9 @@ export class Swagger {
         for (const method of routeDef.methods) {
           const ref =
             routeDef.outputType !== undefined
-              ? `#/definitions/${SwaggerUtils.parseTypeFullPath(routeDef.outputType).typeName}`
+              ? `#/definitions/${
+                  SwaggerUtils.parseTypeFullPath(routeDef.outputType).typeName
+                }`
               : undefined
           const operation: Operation = {
             operationId: `${routeDef.path.replace(/\//g, '_')}_${method}`,
@@ -62,7 +71,9 @@ export class Swagger {
           }
 
           if (routeDef.inputType !== undefined) {
-            const ref = `#/definitions/${SwaggerUtils.parseTypeFullPath(routeDef.inputType).typeName}`
+            const ref = `#/definitions/${
+              SwaggerUtils.parseTypeFullPath(routeDef.inputType).typeName
+            }`
             const parameter: BodyParameter = {
               in: 'body',
               name: 'body',
@@ -94,12 +105,17 @@ export class Swagger {
       .getIndexedTypeNames()
       .map(typeFullName => {
         const { typeName } = SwaggerUtils.parseTypeFullPath(typeFullName)
-        const referenceType = this.typeHolder.lookUpType(this.project, typeFullName)
+        const referenceType = this.typeHolder.lookUpType(
+          this.project,
+          typeFullName,
+        )
 
         if (Array.isArray(referenceType)) {
           const propertyDefs = referenceType as IPropertyDef[]
 
-          const required = referenceType.filter(rt => rt.isNullableOrUndefined === false).map(rt => rt.name)
+          const required = referenceType
+            .filter(rt => rt.isNullableOrUndefined === false)
+            .map(rt => rt.name)
 
           const definition: Schema = {
             type: 'object',
@@ -114,10 +130,14 @@ export class Swagger {
                     break
                   default:
                     if (cv.type.startsWith('import')) {
-                      const { typeName } = SwaggerUtils.parseTypeFullPath(cv.type)
+                      const { typeName } = SwaggerUtils.parseTypeFullPath(
+                        cv.type,
+                      )
                       schema.$ref = `#/definitions/${typeName}`
                     } else {
-                      throw new Error(`An undefined type is found for ${typeName}`)
+                      throw new Error(
+                        `An undefined type is found for ${typeName}`,
+                      )
                     }
 
                     break

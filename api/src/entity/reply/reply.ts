@@ -27,7 +27,11 @@ export class ReplyDto {
   public createMillis: number
 }
 
-export function getReplyKey(postId: string, dateTimeStr?: string, hash?: string) {
+export function getReplyKey(
+  postId: string,
+  dateTimeStr?: string,
+  hash?: string,
+) {
   if (dateTimeStr === undefined) {
     return `id#${postId}`
   }

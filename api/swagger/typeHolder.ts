@@ -19,16 +19,23 @@ export class TypeHolder {
     }
   }
 
-  public lookUpType(project: Project, typeFullPath: string): IEnumDef | IPropertyDef[] {
+  public lookUpType(
+    project: Project,
+    typeFullPath: string,
+  ): IEnumDef | IPropertyDef[] {
     if (Object.keys(this.referenceTypes).includes(typeFullPath)) {
       return this.referenceTypes[typeFullPath]
     }
 
-    const { importPath, typeName } = SwaggerUtils.parseTypeFullPath(typeFullPath)
+    const { importPath, typeName } = SwaggerUtils.parseTypeFullPath(
+      typeFullPath,
+    )
 
     const sourceFile = project.getSourceFile(`${importPath}.ts`)
     if (sourceFile === undefined) {
-      throw new Error(`Can't locate the source file with typeFullPath=[${typeFullPath}]`)
+      throw new Error(
+        `Can't locate the source file with typeFullPath=[${typeFullPath}]`,
+      )
     }
 
     const classDeclaration = sourceFile.getClass(typeName.replace(/\[\]/g, ''))
@@ -36,9 +43,14 @@ export class TypeHolder {
       const classProperties = SwaggerUtils.getClassProperties(classDeclaration)
 
       // This is not good, Recursion + States
-      const importingTypes = classProperties.filter(cp => cp.type.startsWith('import'))
+      const importingTypes = classProperties.filter(cp =>
+        cp.type.startsWith('import'),
+      )
       for (const importingType of importingTypes) {
-        this.referenceTypes[importingType.type] = this.lookUpType(project, importingType.type)
+        this.referenceTypes[importingType.type] = this.lookUpType(
+          project,
+          importingType.type,
+        )
       }
 
       return classProperties

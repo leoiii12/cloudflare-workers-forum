@@ -17,7 +17,10 @@ export class UpdateUserInput {
 
 export async function updateUser(request: Request): Promise<Response> {
   const json = await request.json()
-  const input = (await transformAndValidate(UpdateUserInput, json)) as UpdateUserInput
+  const input = (await transformAndValidate(
+    UpdateUserInput,
+    json,
+  )) as UpdateUserInput
 
   await getCachedVal(getUserKey(input.id), USERS, 'USERS', true)
 

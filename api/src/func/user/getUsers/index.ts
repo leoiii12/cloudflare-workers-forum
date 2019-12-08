@@ -23,7 +23,10 @@ export class GetUsersOutput {
 
 export async function getUsers(request: Request): Promise<Response> {
   const json = await request.json()
-  const input = (await transformAndValidate(GetUsersInput, json)) as GetUsersInput
+  const input = (await transformAndValidate(
+    GetUsersInput,
+    json,
+  )) as GetUsersInput
 
   const userKeys = map<string, string>(id => getUserKey(id))(input.ids)
 

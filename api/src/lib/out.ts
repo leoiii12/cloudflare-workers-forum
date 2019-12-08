@@ -28,7 +28,10 @@ export class Out<T> {
     return this.out(200, output)
   }
 
-  public static internalError(message: string = 'There are some errors.', data?: any) {
+  public static internalError(
+    message: string = 'There are some errors.',
+    data?: any,
+  ) {
     const output = new Out()
 
     output.success = false

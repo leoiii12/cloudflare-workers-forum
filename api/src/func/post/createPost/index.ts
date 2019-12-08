@@ -48,7 +48,10 @@ export async function createPost(request: Request): Promise<Response> {
   const { user } = await authorize(headerAuthorization, USERS)
 
   const json = await request.json()
-  const input = (await transformAndValidate(CreatePostInput, json)) as CreatePostInput
+  const input = (await transformAndValidate(
+    CreatePostInput,
+    json,
+  )) as CreatePostInput
 
   const categoryVal = await CATEGORIES.get(getCategoryKey(input.categoryId))
   if (categoryVal === null) {
@@ -70,7 +73,10 @@ export async function createPost(request: Request): Promise<Response> {
   }
 
   await POSTS.put(getPostKey(dateTimeStr, hash), JSON.stringify(post))
-  await RELATIONS.put(getUsersPostsKey(user.id, postId), JSON.stringify({ userId: user.id, postId }))
+  await RELATIONS.put(
+    getUsersPostsKey(user.id, postId),
+    JSON.stringify({ userId: user.id, postId }),
+  )
   await RELATIONS.put(
     getCategoriesPostsKey(input.categoryId, postId),
     JSON.stringify({ categoryId: input.categoryId, postId }),

@@ -1,6 +1,13 @@
 import { genSaltSync, hashSync } from 'bcryptjs'
 import { transformAndValidate } from 'class-transformer-validator'
-import { IsDefined, IsEmail, IsNotEmpty, IsString, Length, NotContains } from 'class-validator'
+import {
+  IsDefined,
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  Length,
+  NotContains,
+} from 'class-validator'
 
 import { KVNamespace } from '@cloudflare/workers-types'
 
@@ -37,7 +44,9 @@ export async function signUp(request: Request): Promise<Response> {
   const input = (await transformAndValidate(SignUpInput, json)) as SignUpInput
 
   if (
-    (await USERS.get(`emailAddress#${await sha256Encode(input.emailAddress)}`)) !== null ||
+    (await USERS.get(
+      `emailAddress#${await sha256Encode(input.emailAddress)}`,
+    )) !== null ||
     (await USERS.get(`name#${await sha256Encode(input.name)}`)) !== null
   ) {
     throw new UserFriendlyError('The emailAddress or name is registered.')
@@ -59,7 +68,10 @@ export async function signUp(request: Request): Promise<Response> {
     },
   }
   await USERS.put(getUserKey(userId), JSON.stringify(user))
-  await USERS.put(`emailAddress#${await sha256Encode(user.emailAddress)}`, userId)
+  await USERS.put(
+    `emailAddress#${await sha256Encode(user.emailAddress)}`,
+    userId,
+  )
   await USERS.put(`name#${await sha256Encode(user.name)}`, userId)
 
   const userVal = await USERS.get(getUserKey(userId))

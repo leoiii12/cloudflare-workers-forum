@@ -38,7 +38,10 @@ export async function createReply(request: Request): Promise<Response> {
   const { user } = await authorize(headerAuthorization, USERS)
 
   const json = await request.json()
-  const input = (await transformAndValidate(CreateReplyInput, json)) as CreateReplyInput
+  const input = (await transformAndValidate(
+    CreateReplyInput,
+    json,
+  )) as CreateReplyInput
 
   const postVal = await POSTS.get(`id#${input.postId}`)
   if (postVal === null) {
@@ -62,7 +65,10 @@ export async function createReply(request: Request): Promise<Response> {
     postId: post.id,
   }
 
-  await REPLIES.put(getReplyKey(postId, dateTimeStr, hash), JSON.stringify(reply))
+  await REPLIES.put(
+    getReplyKey(postId, dateTimeStr, hash),
+    JSON.stringify(reply),
+  )
 
   const replyVal = await REPLIES.get(getReplyKey(postId, dateTimeStr, hash))
   if (replyVal === null) {

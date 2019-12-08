@@ -55,7 +55,10 @@ export async function handleRequest(request: Request) {
 
   for (const module of modules) {
     for (const routeObj of Object.values(module)) {
-      if (request.url.endsWith(routeObj.path) && routeObj.methods.includes(request.method)) {
+      if (
+        request.url.endsWith(routeObj.path) &&
+        routeObj.methods.includes(request.method)
+      ) {
         return routeObj.func(request)
       }
     }

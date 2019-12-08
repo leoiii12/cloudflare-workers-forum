@@ -118,7 +118,12 @@ export type CollectionFormat = 'csv' | 'ssv' | 'tsv' | 'pipes'
  * This interface was referenced by `SwaggerDocV2`'s JSON-Schema
  * via the `definition` "collectionFormatWithMulti".
  */
-export type CollectionFormatWithMulti = 'csv' | 'ssv' | 'tsv' | 'pipes' | 'multi'
+export type CollectionFormatWithMulti =
+  | 'csv'
+  | 'ssv'
+  | 'tsv'
+  | 'pipes'
+  | 'multi'
 /**
  * The parameters needed to send a valid API call.
  *
@@ -442,8 +447,24 @@ export interface Schema {
   enum?: Enum
   additionalProperties?: Schema | boolean
   type?:
-    | ('array' | 'boolean' | 'integer' | 'null' | 'number' | 'object' | 'string')
-    | ('array' | 'boolean' | 'integer' | 'null' | 'number' | 'object' | 'string')[]
+    | (
+        | 'array'
+        | 'boolean'
+        | 'integer'
+        | 'null'
+        | 'number'
+        | 'object'
+        | 'string'
+      )
+    | (
+        | 'array'
+        | 'boolean'
+        | 'integer'
+        | 'null'
+        | 'number'
+        | 'object'
+        | 'string'
+      )[]
   items?: Schema | [Schema, ...Schema[]]
   allOf?: [Schema, ...Schema[]]
   properties?: {
