@@ -1,6 +1,7 @@
 import { Project } from 'ts-morph'
 
 import { IEnumDef } from './enumDef'
+import { IPropertyDef } from './propertyDef'
 import { IRouteDef } from './routeDef'
 import {
   BodyParameter,
@@ -61,7 +62,10 @@ export class Swagger {
             parameters: [],
             responses: {
               200: {
-                $ref: ref,
+                description: 'Success',
+                schema: {
+                  $ref: ref,
+                },
               },
             },
           }
@@ -107,26 +111,29 @@ export class Swagger {
         )
 
         if (Array.isArray(referenceType)) {
+          const propertyDefs = referenceType as IPropertyDef[]
+
           const required = referenceType
             .filter(rt => rt.isNullableOrUndefined === false)
             .map(rt => rt.name)
 
           const definition: Schema = {
             type: 'object',
-            properties: referenceType.reduce(
+            properties: propertyDefs.reduce(
               (agg, cv) => {
+                let schema: Schema = {}
                 switch (cv.type) {
                   case 'boolean':
                   case 'number':
                   case 'string':
-                    agg[cv.name] = { type: cv.type }
+                    schema.type = cv.type
                     break
                   default:
                     if (cv.type.startsWith('import')) {
                       const { typeName } = SwaggerUtils.parseTypeFullPath(
                         cv.type,
                       )
-                      agg[cv.name] = { $ref: `#/definitions/${typeName}` }
+                      schema.$ref = `#/definitions/${typeName}`
                     } else {
                       throw new Error(
                         `An undefined type is found for ${typeName}`,
@@ -135,6 +142,11 @@ export class Swagger {
 
                     break
                 }
+
+                for (let i = 0; i < cv.arrayDepth; i++) {
+                  schema = { type: 'array', items: schema }
+                }
+                agg[cv.name] = schema
 
                 return agg
               },
