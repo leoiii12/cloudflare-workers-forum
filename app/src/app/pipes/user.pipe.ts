@@ -1,4 +1,5 @@
-import { map } from 'rxjs/operators'
+import { Observable } from 'rxjs'
+import { map, publishReplay, refCount } from 'rxjs/operators'
 
 import { Pipe, PipeTransform } from '@angular/core'
 
@@ -8,28 +9,25 @@ import { DefaultService, GetUsersOutput, UserDto } from '../../api'
   name: 'user',
 })
 export class UserPipe implements PipeTransform {
-  public cachedUsers: { [userId: string]: UserDto } = {}
+  public cachedUsers: { [userId: string]: Observable<UserDto> } = {}
 
   constructor(private defaultService: DefaultService) {}
 
   public transform(userId: string): Promise<UserDto> {
     if (this.cachedUsers[userId] !== undefined) {
-      return new Promise(() => {
-        return this.cachedUsers[userId]
-      })
+      return this.cachedUsers[userId].toPromise()
     }
 
-    return this.defaultService
+    this.cachedUsers[userId] = this.defaultService
       .userGetUsersPost({ ids: [userId] })
       .pipe(
         map((getUsersOutput: GetUsersOutput) => {
-          for (const user of getUsersOutput.users) {
-            this.cachedUsers[userId] = user
-          }
-
-          return this.cachedUsers[userId]
+          return getUsersOutput.users[0]
         }),
+        publishReplay(1, 1000),
+        refCount(),
       )
-      .toPromise()
+
+    return this.cachedUsers[userId].toPromise()
   }
 }
