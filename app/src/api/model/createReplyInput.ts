@@ -11,7 +11,7 @@
  */
 
 export interface CreateReplyInput {
-  postId?: string
-  title?: string
-  paragraphs?: string
+  postId: string
+  title: string
+  paragraphs: Array<string>
 }

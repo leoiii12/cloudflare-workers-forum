@@ -11,9 +11,9 @@
  */
 
 export interface PostDto {
-  id?: string
-  title?: string
-  paragraphs?: string
-  authorUserId?: string
-  createMillis?: number
+  id: string
+  title: string
+  paragraphs: Array<string>
+  authorUserId: string
+  createMillis: number
 }

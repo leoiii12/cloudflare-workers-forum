@@ -11,5 +11,5 @@
  */
 
 export interface CreateCategoryInput {
-  title?: string
+  title: string
 }

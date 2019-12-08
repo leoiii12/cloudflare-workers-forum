@@ -13,7 +13,7 @@ import { MetaDto } from './metaDto'
 import { ProfileDto } from './profileDto'
 
 export interface UserDto {
-  id?: string
+  id: string
   profile?: ProfileDto
   meta?: MetaDto
 }

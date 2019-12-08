@@ -11,7 +11,7 @@
  */
 
 export interface CreatePostInput {
-  title?: string
-  paragraphs?: string
-  categoryId?: string
+  title: string
+  paragraphs: Array<string>
+  categoryId: string
 }

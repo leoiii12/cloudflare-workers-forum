@@ -12,8 +12,8 @@
 import { CategoryStatus } from './categoryStatus'
 
 export interface CategoryDto {
-  id?: string
-  title?: string
-  createUserId?: string
-  status?: CategoryStatus
+  id: string
+  title: string
+  createUserId: string
+  status: CategoryStatus
 }

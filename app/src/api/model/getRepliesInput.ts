@@ -11,5 +11,5 @@
  */
 
 export interface GetRepliesInput {
-  postId?: string
+  postId: string
 }

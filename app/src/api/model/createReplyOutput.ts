@@ -12,5 +12,5 @@
 import { ReplyDto } from './replyDto'
 
 export interface CreateReplyOutput {
-  reply?: ReplyDto
+  reply: ReplyDto
 }

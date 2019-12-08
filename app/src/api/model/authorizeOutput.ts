@@ -11,5 +11,5 @@
  */
 
 export interface AuthorizeOutput {
-  jwt?: string
+  jwt: string
 }

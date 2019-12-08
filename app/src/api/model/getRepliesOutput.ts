@@ -12,5 +12,5 @@
 import { ReplyDto } from './replyDto'
 
 export interface GetRepliesOutput {
-  replies?: ReplyDto
+  replies: Array<ReplyDto>
 }

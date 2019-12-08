@@ -41,7 +41,7 @@ export class AppComponent {
       this.splashScreen.hide()
 
       this.defaultService
-        .userauthorizePost({
+        .userAuthorizePost({
           emailAddress: 'choimankin@gmail.com',
           password: '12345678',
         })
@@ -50,10 +50,10 @@ export class AppComponent {
         })
 
       this.defaultService
-        .categorygetCategoriesPost()
+        .categoryGetCategoriesPost()
         .pipe(
           flatMap((getCategoriesOutput: GetCategoriesOutput) => {
-            return this.defaultService.postgetPostsPost({
+            return this.defaultService.postGetPostsPost({
               categoryId: getCategoriesOutput.categories[0].id,
             })
           }),

@@ -11,5 +11,5 @@
  */
 
 export interface GetUsersInput {
-  ids?: string
+  ids: Array<string>
 }

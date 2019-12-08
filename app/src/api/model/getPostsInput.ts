@@ -11,5 +11,5 @@
  */
 
 export interface GetPostsInput {
-  categoryId?: string
+  categoryId: string
 }

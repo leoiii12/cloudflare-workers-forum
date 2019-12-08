@@ -11,5 +11,5 @@
  */
 
 export interface GetUserPostsInput {
-  userId?: string
+  userId: string
 }

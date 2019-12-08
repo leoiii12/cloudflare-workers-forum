@@ -12,5 +12,5 @@
 import { UserDto } from './userDto'
 
 export interface SignUpOutput {
-  user?: UserDto
+  user: UserDto
 }

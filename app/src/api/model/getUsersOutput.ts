@@ -12,5 +12,5 @@
 import { UserDto } from './userDto'
 
 export interface GetUsersOutput {
-  users?: UserDto
+  users: Array<UserDto>
 }

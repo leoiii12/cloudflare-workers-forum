@@ -12,5 +12,5 @@
 import { PostDto } from './postDto'
 
 export interface CreatePostOutput {
-  post?: PostDto
+  post: PostDto
 }

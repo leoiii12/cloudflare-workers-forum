@@ -12,5 +12,5 @@
 import { PostDto } from './postDto'
 
 export interface GetUserPostsOutput {
-  posts?: PostDto
+  posts: Array<PostDto>
 }
