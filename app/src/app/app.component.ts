@@ -3,7 +3,7 @@ import { flatMap } from 'rxjs/operators'
 import { Component } from '@angular/core'
 import { SplashScreen } from '@ionic-native/splash-screen/ngx'
 import { StatusBar } from '@ionic-native/status-bar/ngx'
-import { Platform } from '@ionic/angular'
+import { NavController, Platform } from '@ionic/angular'
 
 import {
   DefaultService,
@@ -25,6 +25,7 @@ export class AppComponent {
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
     private defaultService: DefaultService,
+    private navCtrl: NavController,
   ) {
     this.initializeApp()
   }
@@ -56,5 +57,9 @@ export class AppComponent {
           this.posts = getPostsOutput.posts
         })
     })
+  }
+
+  public onClickPost(post: PostDto) {
+    this.navCtrl.navigateRoot(`/post/${post.id}`)
   }
 }

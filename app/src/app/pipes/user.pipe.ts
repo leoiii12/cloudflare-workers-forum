@@ -1,14 +1,13 @@
-import { pipe, Subject } from 'rxjs'
 import { map } from 'rxjs/operators'
 
 import { Pipe, PipeTransform } from '@angular/core'
 
-import { DefaultService, GetUsersOutput, UserDto } from '../api'
+import { DefaultService, GetUsersOutput, UserDto } from '../../api'
 
 @Pipe({
-  name: 'userPipe',
+  name: 'user',
 })
-export class UserPipePipe implements PipeTransform {
+export class UserPipe implements PipeTransform {
   public cachedUsers: { [userId: string]: UserDto } = {}
 
   constructor(private defaultService: DefaultService) {}

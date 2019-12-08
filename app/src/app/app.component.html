@@ -9,10 +9,10 @@
       <ion-content>
         <ion-list>
           <ion-menu-toggle auto-hide="false" *ngFor="let p of posts">
-            <ion-item>
+            <ion-item (click)="onClickPost(p)">
               <ion-label>
                 {{p.title}}
-                {{(p.authorUserId | userPipe | async)?.name}}
+                {{(p.authorUserId | user | async)?.name}}
               </ion-label>
             </ion-item>
           </ion-menu-toggle>

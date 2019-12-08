@@ -1,0 +1,35 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Post</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-card *ngIf="post">
+    <ion-card-header>
+      <ion-card-title>#1 {{post.title}}</ion-card-title>
+      <ion-card-subtitle>{{(post.authorUserId | user | async)?.name}} @ {{post.createMillis}}</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <p *ngFor="let paragraph of post.paragraphs">{{paragraph}}</p>
+    </ion-card-content>
+  </ion-card>
+
+  <div *ngIf="replies">
+
+    <ion-card *ngFor="let reply of replies; let i = index; trackBy: trackByFn">
+      <ion-card-header>
+        <ion-card-title>#{{i + 2}} {{reply.title}}</ion-card-title>
+        <ion-card-subtitle>{{(reply.authorUserId | user | async)?.name}} @ {{reply.createMillis}}</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <p *ngFor="let paragraph of reply.paragraphs">{{paragraph}}</p>
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+
+</ion-content>

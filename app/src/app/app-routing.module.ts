@@ -12,6 +12,11 @@ const routes: Routes = [
     loadChildren: () =>
       import('./home/home.module').then(m => m.HomePageModule),
   },
+  {
+    path: 'post/:postId',
+    loadChildren: () =>
+      import('./post/post.module').then(m => m.PostPageModule),
+  },
 ]
 
 @NgModule({

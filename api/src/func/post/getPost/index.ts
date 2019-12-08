@@ -16,7 +16,7 @@ export class GetPostInput {
 }
 
 export class GetPostOutput {
-  constructor(public post: PostDto) { }
+  constructor(public post: PostDto) {}
 }
 
 export async function getPost(request: Request): Promise<Response> {
