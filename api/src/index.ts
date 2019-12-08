@@ -1,3 +1,6 @@
+import { ArrayMaxSize } from 'class-validator'
+import { eachDayOfInterval } from 'date-fns'
+
 import { KVNamespace } from '@cloudflare/workers-types'
 
 import { InternalServerError } from './err/InternalServerError'
@@ -30,8 +33,11 @@ export async function safeHandleRequest(request: Request) {
     if (e instanceof UserFriendlyError) {
       return Out.error(e.message)
     }
+    if (Array.isArray(e)) {
+      return Out.badRequest(e)
+    }
 
-    // EXCEPTIONS.put()
+    await EXCEPTIONS.put(new Date().toISOString(), JSON.stringify(e))
 
     return Out.internalError((e as Error).message)
   }
@@ -40,6 +46,9 @@ export async function safeHandleRequest(request: Request) {
 export async function handleRequest(request: Request) {
   if (request.url === '/' && request.method === 'GET') {
     return Out.ok('Hello World.')
+  }
+  if (request.method === 'OPTIONS') {
+    return Out.ok()
   }
 
   const modules = [CategoryModule, PostModule, ReplyModule, UserModule]

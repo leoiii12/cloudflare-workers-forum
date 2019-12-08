@@ -15,18 +15,19 @@ import { SwaggerUtils } from './swaggerUtils'
 import { TypeHolder } from './typeHolder'
 
 export class Swagger {
-  public infoTitle = 'MySwaggerDoc'
-  public infoVersion = '1.0.0'
-  public host = 'forum-api.lecom.cloud'
-
   private project: Project
 
   private typeHolder: TypeHolder = new TypeHolder()
   private routeDefs: IRouteDef[]
 
-  constructor() {
+  constructor(
+    public host = 'forum-api.lecom.cloud',
+    public infoVersion = '1.0.0',
+    public infoTitle = 'MySwaggerDoc',
+    public tsConfigFilePath = './tsconfig.json',
+  ) {
     this.project = new Project({
-      tsConfigFilePath: './tsconfig.json',
+      tsConfigFilePath,
     })
 
     this.routeDefs = SwaggerUtils.getPlainRouteDefs(this.project)
@@ -55,13 +56,16 @@ export class Swagger {
                 }`
               : undefined
           const operation: Operation = {
-            operationId: `${routeDef.path}_${method}`,
+            operationId: `${routeDef.path.replace(/\//g, '_')}_${method}`,
             produces: ['application/json'],
             consumes: ['application/json'],
             parameters: [],
             responses: {
               200: {
-                $ref: ref,
+                description: 'Success',
+                schema: {
+                  $ref: ref,
+                },
               },
             },
           }
@@ -107,22 +111,29 @@ export class Swagger {
         )
 
         if (Array.isArray(referenceType)) {
+          const propertyDefs = referenceType as IPropertyDef[]
+
+          const required = referenceType
+            .filter(rt => rt.isNullableOrUndefined === false)
+            .map(rt => rt.name)
+
           const definition: Schema = {
             type: 'object',
-            properties: referenceType.reduce(
+            properties: propertyDefs.reduce(
               (agg, cv) => {
+                let schema: Schema = {}
                 switch (cv.type) {
                   case 'boolean':
                   case 'number':
                   case 'string':
-                    agg[cv.name] = { type: cv.type }
+                    schema.type = cv.type
                     break
                   default:
                     if (cv.type.startsWith('import')) {
                       const { typeName } = SwaggerUtils.parseTypeFullPath(
                         cv.type,
                       )
-                      agg[cv.name] = { $ref: `#/definitions/${typeName}` }
+                      schema.$ref = `#/definitions/${typeName}`
                     } else {
                       throw new Error(
                         `An undefined type is found for ${typeName}`,
@@ -132,11 +143,17 @@ export class Swagger {
                     break
                 }
 
+                for (let i = 0; i < cv.arrayDepth; i++) {
+                  schema = { type: 'array', items: schema }
+                }
+                agg[cv.name] = schema
+
                 return agg
               },
               // tslint:disable-next-line: no-object-literal-type-assertion
               {} as { [k: string]: Schema },
             ),
+            required: required.length > 0 ? required : undefined,
           }
 
           return { typeName, definition }

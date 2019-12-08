@@ -1,9 +1,13 @@
+import { ValidationError } from 'class-validator'
 import getTime from 'date-fns/getTime'
 
 export class Out<T> {
   public static out(status: number, body: any): Response {
     return new Response(JSON.stringify(body), {
       headers: {
+        'Access-Control-Allow-Headers': 'Authorization,Content-Type',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Request-Method': 'OPTIONS,GET,POST',
         'Content-Type': 'application/json',
       },
       status,
@@ -55,12 +59,12 @@ export class Out<T> {
     return this.out(400, output)
   }
 
-  public static badRequest(constraints: { [type: string]: string }[]) {
+  public static badRequest(validationErrors: ValidationError[]) {
     const output = new Out()
 
     output.success = false
     output.message = 'The input is invalid.'
-    output.data = constraints
+    output.data = validationErrors
 
     return this.out(400, output)
   }

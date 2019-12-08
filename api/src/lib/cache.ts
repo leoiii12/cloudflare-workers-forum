@@ -8,15 +8,18 @@ export async function getCachedVal(
   key: string,
   kvNamespace: KVNamespace,
   cacheNamespace: string,
+  isForceRefreshing: boolean = false,
 ): Promise<string | null> {
-  const cachedValRes = (await caches.default.match(
-    `https://cache.lecom.cloud/${cacheNamespace}/${key}`,
-  )) as Response
-  if (cachedValRes !== undefined && cachedValRes !== null) {
-    console.log(
-      `Cache hitted. key=[${key}], kvNamespace=[${kvNamespace}], cacheNamespace=[${cacheNamespace}].`,
-    )
-    return cachedValRes.text()
+  if (isForceRefreshing === false) {
+    const cachedValRes = (await caches.default.match(
+      `https://cache.lecom.cloud/${cacheNamespace}/${key}`,
+    )) as Response
+    if (cachedValRes !== undefined && cachedValRes !== null) {
+      console.log(
+        `Cache hitted. key=[${key}], kvNamespace=[${kvNamespace}], cacheNamespace=[${cacheNamespace}].`,
+      )
+      return cachedValRes.text()
+    }
   }
 
   const val = await kvNamespace.get(key)
