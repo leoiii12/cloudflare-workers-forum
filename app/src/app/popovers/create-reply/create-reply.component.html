@@ -1,0 +1,10 @@
+<ion-item>
+  <ion-label position="stacked">Title</ion-label>
+  <ion-input [(ngModel)]="createReplyInput.title"></ion-input>
+</ion-item>
+<ion-item>
+  <ion-label position="stacked">Content</ion-label>
+  <ion-textarea [(ngModel)]="createReplyInput.paragraphs[0]"></ion-textarea>
+</ion-item>
+
+<ion-button expand="block" (click)="onClickReply()">Reply</ion-button>
