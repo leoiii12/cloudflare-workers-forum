@@ -8,7 +8,12 @@ export class Out<T> {
         'Access-Control-Allow-Headers': 'Authorization,Content-Type',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Request-Method': 'OPTIONS,GET,POST',
+
         'Content-Type': 'application/json',
+
+        'Cache-Control': 'no-cache,no-store,must-revalidate',
+        Pragma: 'no-cache',
+        Expires: '0',
       },
       status,
     })

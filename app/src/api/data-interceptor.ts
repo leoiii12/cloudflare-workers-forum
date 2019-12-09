@@ -31,6 +31,7 @@ export class DataInterceptor implements HttpInterceptor {
           if (event.body) {
             if (event.body.data) {
               if (event.body.data.jwt) {
+                this.jwt = null
                 this.jwt = event.body.data.jwt
               }
 

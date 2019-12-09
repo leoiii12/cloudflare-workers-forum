@@ -1,15 +1,30 @@
 <ion-header>
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button (click)="onClickCreateReply($event)">
+        <ion-icon slot="icon-only" name="create"></ion-icon>
+      </ion-button>
+      <ion-button (click)="onClickRefresh($event)">
+        <ion-icon slot="icon-only" name="refresh"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     <ion-title>Post</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
 
+  <!-- Post -->
   <ion-card *ngIf="post">
     <ion-card-header>
-      <ion-card-title>#1 {{post.title}}</ion-card-title>
-      <ion-card-subtitle>{{(post.authorUserId | user | async)?.name}} @ {{post.createMillis}}</ion-card-subtitle>
+      <ion-card-title>{{post.title}}</ion-card-title>
+      <ion-card-subtitle>
+        #1 <a>{{(post.authorUserId | user | async)?.name}}</a>
+        at {{post.createMillis | date : 'medium'}}
+      </ion-card-subtitle>
     </ion-card-header>
 
     <ion-card-content>
@@ -17,12 +32,16 @@
     </ion-card-content>
   </ion-card>
 
+  <!-- Replies -->
   <div *ngIf="replies">
 
     <ion-card *ngFor="let reply of replies; let i = index; trackBy: trackByFn">
       <ion-card-header>
-        <ion-card-title>#{{i + 2}} {{reply.title}}</ion-card-title>
-        <ion-card-subtitle>{{(reply.authorUserId | user | async)?.name}} @ {{reply.createMillis}}</ion-card-subtitle>
+        <ion-card-title>{{reply.title}}</ion-card-title>
+        <ion-card-subtitle>
+          #{{i + 2}} <a>{{(reply.authorUserId | user | async)?.name}}</a>
+          at {{reply.createMillis | date : 'medium'}}
+        </ion-card-subtitle>
       </ion-card-header>
 
       <ion-card-content>
