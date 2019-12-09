@@ -7,6 +7,9 @@
       <ion-button (click)="onClickCreateReply($event)">
         <ion-icon slot="icon-only" name="create"></ion-icon>
       </ion-button>
+      <ion-button (click)="onClickRefresh($event)">
+        <ion-icon slot="icon-only" name="refresh"></ion-icon>
+      </ion-button>
     </ion-buttons>
     <ion-title>Post</ion-title>
   </ion-toolbar>
@@ -19,7 +22,7 @@
     <ion-card-header>
       <ion-card-title>{{post.title}}</ion-card-title>
       <ion-card-subtitle>
-        #1 <a>{{(post.authorUserId | user | async)?.name}}</a> 
+        #1 <a>{{(post.authorUserId | user | async)?.name}}</a>
         at {{post.createMillis | date : 'medium'}}
       </ion-card-subtitle>
     </ion-card-header>

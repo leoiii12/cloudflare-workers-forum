@@ -1,5 +1,7 @@
-import { Injectable } from '@angular/core'
 import { Observable } from 'rxjs'
+
+import { Injectable } from '@angular/core'
+
 import { UserDto } from '../api'
 
 @Injectable({

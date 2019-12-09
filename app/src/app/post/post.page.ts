@@ -1,14 +1,16 @@
+import { from } from 'rxjs'
+import { map } from 'rxjs/operators'
+
 import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { PopoverController } from '@ionic/angular'
 
-import { from } from 'rxjs'
-import { map } from 'rxjs/operators'
 import { DefaultService, PostDto, ReplyDto } from '../../api'
 import {
   CreateReplyComponent,
   ICreateReplyComponentProps,
 } from '../popovers/create-reply/create-reply.component'
+import { ReplyService } from '../reply.service'
 
 @Component({
   selector: 'app-post',
@@ -24,6 +26,7 @@ export class PostPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private defaultService: DefaultService,
     private popoverCtrl: PopoverController,
+    private replyService: ReplyService,
   ) {}
 
   public ngOnInit() {
@@ -51,6 +54,10 @@ export class PostPage implements OnInit {
     return popover.present()
   }
 
+  public async onClickRefresh(ev: Event) {
+    this.getReplies().subscribe(replies => (this.replies = replies))
+  }
+
   public trackByFn(idx: number, item: { id: string }) {
     return item.id
   }
@@ -62,8 +69,6 @@ export class PostPage implements OnInit {
   }
 
   private getReplies() {
-    return this.defaultService
-      .replyGetRepliesPost({ postId: this.postId })
-      .pipe(map(getRepliesOutput => getRepliesOutput.replies))
+    return this.replyService.getReplies(this.postId)
   }
 }
