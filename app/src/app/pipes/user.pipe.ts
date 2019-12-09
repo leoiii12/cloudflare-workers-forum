@@ -27,7 +27,7 @@ export class UserPipe implements PipeTransform {
         map((getUsersOutput: GetUsersOutput) => {
           return getUsersOutput.users[0]
         }),
-        publishReplay(1, 5000),
+        publishReplay(),
         refCount(),
       )
 

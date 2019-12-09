@@ -1,3 +1,5 @@
+import { WebStorageModule } from 'ngx-store'
+
 import { HttpClientModule } from '@angular/common/http'
 import { NgModule } from '@angular/core'
 import { BrowserModule } from '@angular/platform-browser'
@@ -13,7 +15,6 @@ import { PipesModule } from './pipes/pipes.module'
 import { PostService } from './post.service'
 import { ReplyService } from './reply.service'
 import { UserService } from './user.service'
-import { WebStorageModule } from 'ngx-store'
 
 @NgModule({
   declarations: [AppComponent],

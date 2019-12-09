@@ -1,3 +1,4 @@
+import { LocalStorage } from 'ngx-store'
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 
@@ -23,9 +24,10 @@ export class ReplyService {
   public postIdReplies: { [postId: string]: ReplyDto[] } = {}
 
   /**
-   * Tthe replies just posted in this client
+   * The replies just posted in this client,
+   * may not shown in the server immediately
    */
-  public myPostIdReplies: { [posdId: string]: ReplyDto[] } = {}
+  @LocalStorage() public myPostIdReplies: { [posdId: string]: ReplyDto[] } = {}
 
   constructor(private defaultService: DefaultService) {}
 
@@ -33,13 +35,19 @@ export class ReplyService {
     return this.defaultService.replyGetRepliesPost({ postId }).pipe(
       map(getRepliesOutput => {
         const replies = (this.postIdReplies[postId] = getRepliesOutput.replies)
-
-        const myReplies = this.myPostIdReplies[postId]
-        if (Array.isArray(myReplies)) {
-          return replies.concat(myReplies)
+        if (Array.isArray(replies) === false) {
+          return replies
         }
 
-        return replies
+        const replyIds = replies.map(r => r.id)
+        const myReplies = this.myPostIdReplies[postId].filter(
+          r => replyIds.includes(r.id) === false,
+        )
+
+        this.myPostIdReplies[postId] = myReplies
+        ;(this.myPostIdReplies as any).save()
+
+        return replies.concat(myReplies)
       }),
     )
   }
@@ -60,6 +68,7 @@ export class ReplyService {
             createReplyOutput.reply,
           ]
         }
+        ;(this.myPostIdReplies as any).save()
 
         return createReplyOutput
       }),
