@@ -1,7 +1,8 @@
 import { CreateReplyInput, DefaultService } from 'src/api'
 
 import { Component } from '@angular/core'
-import { NavParams } from '@ionic/angular'
+import { NavParams, PopoverController, LoadingController } from '@ionic/angular'
+import { finalize } from 'rxjs/operators'
 
 export interface ICreateReplyComponentProps {
   postId: string
@@ -22,15 +23,25 @@ export class CreateReplyComponent {
   constructor(
     private defaultService: DefaultService,
     private navParams: NavParams,
+    private popoverCtrl: PopoverController,
+    private loadingCtrl: LoadingController,
   ) {
     this.createReplyInput.postId = this.navParams.get('postId')
   }
 
-  public onClickReply() {
+  public async onClickReply() {
+    const loading = await this.loadingCtrl.create({})
+    await loading.present()
+
     this.defaultService
       .replyCreateReplyPost(this.createReplyInput)
-      .subscribe(createReplyOutput => {
-        console.log(createReplyOutput)
+      .pipe(
+        finalize(async () => {
+          await loading.dismiss()
+        }),
+      )
+      .subscribe(async createReplyOutput => {
+        await this.popoverCtrl.dismiss()
       })
   }
 }

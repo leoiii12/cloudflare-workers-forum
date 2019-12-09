@@ -18,8 +18,9 @@
   <ion-card *ngIf="post">
     <ion-card-header>
       <ion-card-title>{{post.title}}</ion-card-title>
-      <ion-card-subtitle>#1 <a>{{(post.authorUserId | user | async)?.name}}</a> at
-        {{post.createMillis | date : 'medium'}}
+      <ion-card-subtitle>
+        #1 <a>{{(post.authorUserId | user | async)?.name}}</a> 
+        at {{post.createMillis | date : 'medium'}}
       </ion-card-subtitle>
     </ion-card-header>
 
@@ -34,8 +35,9 @@
     <ion-card *ngFor="let reply of replies; let i = index; trackBy: trackByFn">
       <ion-card-header>
         <ion-card-title>{{reply.title}}</ion-card-title>
-        <ion-card-subtitle>#{{i + 2}} <a>{{(reply.authorUserId | user | async)?.name}}</a> at
-          {{reply.createMillis | date : 'medium'}}
+        <ion-card-subtitle>
+          #{{i + 2}} <a>{{(reply.authorUserId | user | async)?.name}}</a>
+          at {{reply.createMillis | date : 'medium'}}
         </ion-card-subtitle>
       </ion-card-header>
 
