@@ -11,6 +11,7 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular'
 import { AppRoutingModule } from './app-routing.module'
 import { AppComponent } from './app.component'
 import { PipesModule } from './pipes/pipes.module'
+import { UserService } from './user.service'
 
 @NgModule({
   declarations: [AppComponent],
@@ -27,6 +28,7 @@ import { PipesModule } from './pipes/pipes.module'
     StatusBar,
     SplashScreen,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    UserService,
   ],
   bootstrap: [AppComponent],
 })
