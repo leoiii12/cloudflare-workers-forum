@@ -35,7 +35,10 @@ export class ReplyService {
     return this.defaultService.replyGetRepliesPost({ postId }).pipe(
       map(getRepliesOutput => {
         const replies = (this.postIdReplies[postId] = getRepliesOutput.replies)
-        if (Array.isArray(replies) === false) {
+        const hasCachedReplies =
+          Array.isArray(this.myPostIdReplies[postId]) &&
+          this.myPostIdReplies[postId].length > 0
+        if (hasCachedReplies === false) {
           return replies
         }
 

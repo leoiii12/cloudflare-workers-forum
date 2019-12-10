@@ -1,6 +1,5 @@
 import { transformAndValidate } from 'class-transformer-validator'
 import { IsDefined, IsString } from 'class-validator'
-import { map } from 'rambda'
 
 import { KVNamespace } from '@cloudflare/workers-types'
 
@@ -42,7 +41,7 @@ export async function getReplies(request: Request): Promise<Response> {
 
   const replyVals = await getCachedVals(replyKeys, REPLIES, 'REPLIES')
   const replies = parseVals<IReply>(replyVals)
-  const replyDtos = map<IReply, ReplyDto>(r => ReplyDto.from(r))(replies)
+  const replyDtos = replies.map(r => ReplyDto.from(r))
 
   return Out.ok(new GetRepliesOutput(replyDtos))
 }

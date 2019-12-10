@@ -1,6 +1,5 @@
 import { transformAndValidate } from 'class-transformer-validator'
 import { IsDefined, IsString } from 'class-validator'
-import { map } from 'rambda'
 
 import { KVNamespace } from '@cloudflare/workers-types'
 
@@ -14,7 +13,7 @@ import {
   PostDto,
 } from '../../../entity'
 import { UserFriendlyError } from '../../../err'
-import { getCachedVal } from '../../../lib/cache'
+import { getCachedVal, getCachedVals } from '../../../lib/cache'
 import { parseVals } from '../../../lib/list'
 import { Out } from '../../../lib/out'
 
@@ -58,13 +57,9 @@ export async function getUserPosts(request: Request): Promise<Response> {
 
   const postIds = await getPostIdsByUser(input.userId)
 
-  const postVals = await Promise.all(
-    map<string, Promise<string | null>>(postId =>
-      getCachedVal(getPostKey(postId), POSTS, 'POSTS'),
-    )(postIds),
-  )
+  const postVals = await getCachedVals(postIds, POSTS, 'POSTS')
   const posts = parseVals<IPost>(postVals)
-  const postDtos = map<IPost, PostDto>(p => PostDto.from(p))(posts)
+  const postDtos = posts.map(p => PostDto.from(p))
 
   return Out.ok(new GetUserPostsOutput(postDtos))
 }
