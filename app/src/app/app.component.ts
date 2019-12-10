@@ -11,6 +11,7 @@ import {
   GetPostsOutput,
   PostDto,
 } from '../api'
+import { PostService } from './post.service'
 
 @Component({
   selector: 'app-root',
@@ -26,6 +27,7 @@ export class AppComponent {
     private statusBar: StatusBar,
     private defaultService: DefaultService,
     private navCtrl: NavController,
+    private postService: PostService,
   ) {
     this.initializeApp()
   }
@@ -44,19 +46,20 @@ export class AppComponent {
           console.log(output)
         })
 
-      this.defaultService
-        .categoryGetCategoriesPost()
-        .pipe(
-          flatMap((getCategoriesOutput: GetCategoriesOutput) => {
-            return this.defaultService.postGetPostsPost({
-              categoryId: getCategoriesOutput.categories[0].id,
-            })
-          }),
-        )
-        .subscribe((getPostsOutput: GetPostsOutput) => {
-          this.posts = getPostsOutput.posts
-        })
+      this.defaultService.categoryGetCategoriesPost().subscribe(output => {
+        console.log(output)
+      })
     })
+  }
+
+  public onClickRefresh(ev: Event) {
+    this.postService
+      .getPosts(
+        '31d8d48a7adaae3234afe59d5c702c90144cb5fde976567a9f50ce601b2a9227',
+      )
+      .subscribe(posts => {
+        this.posts = posts
+      })
   }
 
   public onClickPost(post: PostDto) {
