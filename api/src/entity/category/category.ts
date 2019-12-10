@@ -1,4 +1,9 @@
+import { EntityType } from '../entityType'
+
 export interface ICategory {
+  t: EntityType.ICategory
+  v: 1
+
   id: string
   title: string
   createUserId: string

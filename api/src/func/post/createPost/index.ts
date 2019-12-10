@@ -6,6 +6,7 @@ import getTime from 'date-fns/getTime'
 import { KVNamespace } from '@cloudflare/workers-types'
 
 import {
+  EntityType,
   getCategoriesPostsKey,
   getCategoryKey,
   getPostKey,
@@ -65,6 +66,9 @@ export async function createPost(request: Request): Promise<Response> {
   const postId = `${dateTimeStr}_${hash}`
 
   const post: IPost = {
+    t: EntityType.IPost,
+    v: 1,
+
     id: postId,
     authorUserId: user.id,
     title: input.title,
