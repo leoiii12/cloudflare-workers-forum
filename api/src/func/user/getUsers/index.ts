@@ -1,6 +1,5 @@
 import { transformAndValidate } from 'class-transformer-validator'
 import { IsDefined, IsString } from 'class-validator'
-import { map } from 'rambda'
 
 import { KVNamespace } from '@cloudflare/workers-types'
 
@@ -28,11 +27,11 @@ export async function getUsers(request: Request): Promise<Response> {
     json,
   )) as GetUsersInput
 
-  const userKeys = map<string, string>(id => getUserKey(id))(input.ids)
+  const userKeys = input.ids.map(id => getUserKey(id))
 
   const userVals = await getCachedVals(userKeys, USERS, 'USERS')
   const users = parseVals<IUser>(userVals)
-  const userDtos = map<IUser, UserDto>(u => UserDto.from(u))(users)
+  const userDtos = users.map(u => UserDto.from(u))
 
   return Out.ok(new GetUsersOutput(userDtos))
 }

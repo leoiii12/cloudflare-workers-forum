@@ -1,3 +1,5 @@
 {
     "importSorter.importStringConfiguration.hasSemicolon": false,
+    "importSorter.importStringConfiguration.quoteMark": "single",
+    "importSorter.generalConfiguration.sortOnBeforeSave": true
 }

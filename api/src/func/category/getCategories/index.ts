@@ -1,5 +1,3 @@
-import { map } from 'rambda'
-
 import { KVNamespace } from '@cloudflare/workers-types'
 
 import { CategoryDto, ICategory } from '../../../entity'
@@ -15,9 +13,7 @@ export class GetCategoriesOutput {
 
 export async function getCategories(request: Request): Promise<Response> {
   const categoryKeysRes = await CATEGORIES.list({})
-  const categoryKeys = map<{ name: string }, string>(k => k.name)(
-    categoryKeysRes.keys,
-  )
+  const categoryKeys = categoryKeysRes.keys.map(k => k.name)
 
   const categoryVals = await getCachedVals(
     categoryKeys,
@@ -25,9 +21,7 @@ export async function getCategories(request: Request): Promise<Response> {
     'CATEGORIES',
   )
   const categories = parseVals<ICategory>(categoryVals)
-  const categoryDtos = map<ICategory, CategoryDto>(c => CategoryDto.from(c))(
-    categories,
-  )
+  const categoryDtos = categories.map((c: ICategory) => CategoryDto.from(c))
 
   return Out.ok(new GetCategoriesOutput(categoryDtos))
 }

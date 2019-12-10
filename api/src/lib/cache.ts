@@ -1,4 +1,4 @@
-import { map } from 'rambda'
+import * as pLimit from 'p-limit'
 
 import { KVNamespace } from '@cloudflare/workers-types'
 
@@ -40,9 +40,11 @@ export async function getCachedVals(
   kvNamespace: KVNamespace,
   cacheNamespace: string,
 ) {
-  return Promise.all(
-    map<string, Promise<string | null>>(k =>
-      getCachedVal(k, kvNamespace, cacheNamespace),
-    )(keys),
-  )
+  const limit = pLimit.default(40)
+
+  const promises = keys.map(k => {
+    return limit(() => getCachedVal(k, kvNamespace, cacheNamespace))
+  })
+
+  return Promise.all(promises)
 }

@@ -1,7 +1,6 @@
 import { transformAndValidate } from 'class-transformer-validator'
 import { IsString } from 'class-validator'
 import format from 'date-fns/format'
-import { map } from 'rambda'
 
 import { KVNamespace } from '@cloudflare/workers-types'
 
@@ -58,11 +57,11 @@ export async function getPosts(request: Request): Promise<Response> {
   )) as GetPostsInput
 
   const postIds = await getPostIds(input.categoryId)
-  const postKeys = map<string, string>(id => getPostKey(id))(postIds)
+  const postKeys = postIds.map(id => getPostKey(id))
 
   const postVals = await getCachedVals(postKeys, POSTS, 'POSTS')
   const posts = parseVals<IPost>(postVals)
-  const postDtos = map<IPost, PostDto>(p => PostDto.from(p))(posts)
+  const postDtos = posts.map(p => PostDto.from(p))
 
   return Out.ok(new GetPostsOutput(postDtos))
 }
