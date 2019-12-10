@@ -1,15 +1,15 @@
 import { from } from 'rxjs'
-import { map } from 'rxjs/operators'
 
 import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { PopoverController } from '@ionic/angular'
 
-import { DefaultService, PostDto, ReplyDto } from '../../api'
+import { PostDto, ReplyDto } from '../../api'
 import {
   CreateReplyComponent,
   ICreateReplyComponentProps,
 } from '../popovers/create-reply/create-reply.component'
+import { PostService } from '../post.service'
 import { ReplyService } from '../reply.service'
 
 @Component({
@@ -24,8 +24,8 @@ export class PostPage implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private defaultService: DefaultService,
     private popoverCtrl: PopoverController,
+    private postService: PostService,
     private replyService: ReplyService,
   ) {}
 
@@ -63,9 +63,7 @@ export class PostPage implements OnInit {
   }
 
   private getPost() {
-    return this.defaultService
-      .postGetPostPost({ postId: this.postId })
-      .pipe(map(getPostOutput => getPostOutput.post))
+    return this.postService.getPost(this.postId)
   }
 
   private getReplies() {

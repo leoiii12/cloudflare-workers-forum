@@ -12,6 +12,7 @@ import { ApiModule } from '../api'
 import { AppRoutingModule } from './app-routing.module'
 import { AppComponent } from './app.component'
 import { PipesModule } from './pipes/pipes.module'
+import { PopoversModule } from './popovers/popovers.module'
 import { PostService } from './post.service'
 import { ReplyService } from './reply.service'
 import { UserService } from './user.service'
@@ -26,6 +27,7 @@ import { UserService } from './user.service'
     WebStorageModule,
     ApiModule,
     HttpClientModule,
+    PopoversModule,
     PipesModule,
   ],
   providers: [
