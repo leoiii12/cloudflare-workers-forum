@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2017",
+    "target": "es2020",
     "noImplicitAny": true,
     "strict": true,
     "noImplicitThis": true,
@@ -11,7 +11,7 @@
     "strictPropertyInitialization": false,
     "preserveSymlinks": true,
     "lib": [
-      "es2017",
+      "es2020",
       "webworker"
     ],
     "baseUrl": "src",

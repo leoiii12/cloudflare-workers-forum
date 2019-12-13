@@ -11,7 +11,7 @@ import {
   IPost,
   PostDto,
 } from '../../../entity'
-import { getCachedVals } from '../../../lib/cache'
+import { getCachedEntityVals } from '../../../lib/cache'
 import { parseVals } from '../../../lib/list'
 import { Out } from '../../../lib/out'
 
@@ -59,7 +59,7 @@ export async function getPosts(request: Request): Promise<Response> {
   const postIds = await getPostIds(input.categoryId)
   const postKeys = postIds.map(id => getPostKey(id))
 
-  const postVals = await getCachedVals(postKeys, POSTS, 'POSTS')
+  const postVals = await getCachedEntityVals(postKeys, POSTS, 'POSTS')
   const posts = parseVals<IPost>(postVals)
   const postDtos = posts.map(p => PostDto.from(p))
 
