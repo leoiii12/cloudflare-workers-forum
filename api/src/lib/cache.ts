@@ -37,6 +37,7 @@ export async function getCachedEntityVals(
   keys: string[],
   kvNamespace: KVNamespace,
   cacheNamespace: string,
+  isForceRefreshing: boolean = false,
 ) {
   const promises = keys.map(k => {
     return getCachedEntityVal(k, kvNamespace, cacheNamespace)

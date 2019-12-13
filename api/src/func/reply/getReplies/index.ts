@@ -20,7 +20,7 @@ export class GetRepliesInput {
   public postId: string
 
   @IsInt()
-  @IsDivisibleBy(40)
+  @IsDivisibleBy(20)
   public skip: number
 }
 
@@ -40,9 +40,10 @@ export async function getReplies(request: Request): Promise<Response> {
   )) as Response
   if (cachedRepliesValRes !== undefined && cachedRepliesValRes !== null) {
     const cachedRepliesVal = await cachedRepliesValRes.text()
-    const cachedReplies = JSON.parse(cachedRepliesVal) as ReplyDto[]
+    const cachedReplies = JSON.parse(cachedRepliesVal) as IReply[]
+    const cachedReplyDtos = cachedReplies.map(cr => ReplyDto.from(cr))
 
-    return Out.ok(new GetRepliesOutput(cachedReplies))
+    return Out.ok(new GetRepliesOutput(cachedReplyDtos))
   }
 
   const postVal = await POSTS.get(`id#${input.postId}`)
@@ -55,11 +56,18 @@ export async function getReplies(request: Request): Promise<Response> {
   const replyKeysRes = await REPLIES.list({ prefix: getReplyKey(postId) })
   const replyKeys = replyKeysRes.keys.map(key => key.name)
 
-  const subReplyKeys = replyKeys.slice(input.skip, input.skip + 40)
+  const subReplyKeys = replyKeys.slice(input.skip, input.skip + 20)
 
   const replyVals = await getCachedEntityVals(subReplyKeys, REPLIES, 'REPLIES')
   const replies = parseVals<IReply>(replyVals)
   const replyDtos = replies.map(r => ReplyDto.from(r))
+
+  if (replies.length === 20) {
+    await caches.default.put(
+      `https://cache.lecom.cloud/getReplies/${input.postId}/${input.skip}`,
+      new Response(JSON.stringify(replies)),
+    )
+  }
 
   return Out.ok(new GetRepliesOutput(replyDtos))
 }
