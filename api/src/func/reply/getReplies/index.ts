@@ -25,7 +25,7 @@ export class GetRepliesInput {
 }
 
 export class GetRepliesOutput {
-  constructor(public replies: ReplyDto[]) {}
+  constructor(public replies: ReplyDto[], public numOfReplies: number) {}
 }
 
 export async function getReplies(request: Request): Promise<Response> {
@@ -34,17 +34,6 @@ export async function getReplies(request: Request): Promise<Response> {
     GetRepliesInput,
     json,
   )) as GetRepliesInput
-
-  const cachedRepliesValRes = (await caches.default.match(
-    `https://cache.lecom.cloud/getReplies/${input.postId}/${input.skip}`,
-  )) as Response
-  if (cachedRepliesValRes !== undefined && cachedRepliesValRes !== null) {
-    const cachedRepliesVal = await cachedRepliesValRes.text()
-    const cachedReplies = JSON.parse(cachedRepliesVal) as IReply[]
-    const cachedReplyDtos = cachedReplies.map(cr => ReplyDto.from(cr))
-
-    return Out.ok(new GetRepliesOutput(cachedReplyDtos))
-  }
 
   const postVal = await POSTS.get(`id#${input.postId}`)
   if (postVal === null) {
@@ -55,6 +44,17 @@ export async function getReplies(request: Request): Promise<Response> {
 
   const replyKeysRes = await REPLIES.list({ prefix: getReplyKey(postId) })
   const replyKeys = replyKeysRes.keys.map(key => key.name)
+
+  const cachedRepliesValRes = (await caches.default.match(
+    `https://cache.lecom.cloud/getReplies/${input.postId}/${input.skip}`,
+  )) as Response
+  if (cachedRepliesValRes !== undefined && cachedRepliesValRes !== null) {
+    const cachedRepliesVal = await cachedRepliesValRes.text()
+    const cachedReplies = JSON.parse(cachedRepliesVal) as IReply[]
+    const cachedReplyDtos = cachedReplies.map(cr => ReplyDto.from(cr))
+
+    return Out.ok(new GetRepliesOutput(cachedReplyDtos, replyKeys.length))
+  }
 
   const subReplyKeys = replyKeys.slice(input.skip, input.skip + 20)
 
@@ -69,5 +69,5 @@ export async function getReplies(request: Request): Promise<Response> {
     )
   }
 
-  return Out.ok(new GetRepliesOutput(replyDtos))
+  return Out.ok(new GetRepliesOutput(replyDtos, replyKeys.length))
 }

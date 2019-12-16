@@ -24,7 +24,7 @@ export class GetPostsInput {
 }
 
 export class GetPostsOutput {
-  constructor(public posts: PostDto[]) {}
+  constructor(public posts: PostDto[], public numOfPosts: number) {}
 }
 
 async function getPostIdsByCategoryId(categoryId: string) {
@@ -63,5 +63,5 @@ export async function getPosts(request: Request): Promise<Response> {
   const posts = parseVals<IPost>(postVals)
   const postDtos = posts.map(p => PostDto.from(p))
 
-  return Out.ok(new GetPostsOutput(postDtos))
+  return Out.ok(new GetPostsOutput(postDtos, postIds.length))
 }

@@ -28,7 +28,7 @@ export class GetUserPostsInput {
 }
 
 export class GetUserPostsOutput {
-  constructor(public posts: PostDto[]) {}
+  constructor(public posts: PostDto[], public numOfPosts: number) {}
 }
 
 async function getPostIdsByUser(userId: string) {
@@ -62,5 +62,5 @@ export async function getUserPosts(request: Request): Promise<Response> {
   const posts = parseVals<IPost>(postVals)
   const postDtos = posts.map(p => PostDto.from(p))
 
-  return Out.ok(new GetUserPostsOutput(postDtos))
+  return Out.ok(new GetUserPostsOutput(postDtos, postIds.length))
 }
