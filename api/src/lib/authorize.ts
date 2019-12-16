@@ -3,7 +3,7 @@ import { KVNamespace } from '@cloudflare/workers-types'
 import { IAccessTokenObj } from '../entity/accessTokenObj'
 import { getUserKey, IUser } from '../entity/user/user'
 import { UnauthorizedError } from '../err/UnauthorizedError'
-import { getCachedVal } from '../lib/cache'
+import { getCachedEntityVal } from '../lib/cache'
 import { verifyJwt } from './jwt'
 
 declare const caches: { default: any }
@@ -22,7 +22,7 @@ export async function authorize(
     'TBR',
   )) as IAccessTokenObj
 
-  const userVal = await getCachedVal(
+  const userVal = await getCachedEntityVal(
     getUserKey(accessTokenObj.id),
     USERS,
     'USERS',

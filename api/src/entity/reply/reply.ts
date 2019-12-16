@@ -1,4 +1,9 @@
+import { EntityType } from '../entityType'
+
 export interface IReply {
+  t: EntityType.IReply
+  v: 1
+
   id: string
   postId: string
   title: string

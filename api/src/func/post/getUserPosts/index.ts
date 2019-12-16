@@ -13,7 +13,7 @@ import {
   PostDto,
 } from '../../../entity'
 import { UserFriendlyError } from '../../../err'
-import { getCachedVal, getCachedVals } from '../../../lib/cache'
+import { getCachedEntityVals } from '../../../lib/cache'
 import { parseVals } from '../../../lib/list'
 import { Out } from '../../../lib/out'
 
@@ -28,7 +28,7 @@ export class GetUserPostsInput {
 }
 
 export class GetUserPostsOutput {
-  constructor(public posts: PostDto[]) {}
+  constructor(public posts: PostDto[], public numOfPosts: number) {}
 }
 
 async function getPostIdsByUser(userId: string) {
@@ -56,10 +56,11 @@ export async function getUserPosts(request: Request): Promise<Response> {
   )) as GetUserPostsInput
 
   const postIds = await getPostIdsByUser(input.userId)
+  const postKeys = postIds.map(id => getPostKey(id))
 
-  const postVals = await getCachedVals(postIds, POSTS, 'POSTS')
+  const postVals = await getCachedEntityVals(postKeys, POSTS, 'POSTS')
   const posts = parseVals<IPost>(postVals)
   const postDtos = posts.map(p => PostDto.from(p))
 
-  return Out.ok(new GetUserPostsOutput(postDtos))
+  return Out.ok(new GetUserPostsOutput(postDtos, postIds.length))
 }

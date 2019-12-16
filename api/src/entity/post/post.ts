@@ -1,4 +1,9 @@
+import { EntityType } from '../entityType'
+
 export interface IPost {
+  t: EntityType.IPost
+  v: 1
+
   id: string
   title: string
   paragraphs: string[]

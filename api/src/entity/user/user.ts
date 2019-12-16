@@ -1,7 +1,11 @@
+import { EntityType } from '../entityType'
 import { Gender } from './gender'
 import { Role } from './role'
 
 export interface IUser {
+  t: EntityType.IUser
+  v: 1
+
   id: string
   emailAddress: string
   name: string

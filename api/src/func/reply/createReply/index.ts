@@ -5,7 +5,13 @@ import getTime from 'date-fns/getTime'
 
 import { KVNamespace } from '@cloudflare/workers-types'
 
-import { getReplyKey, IPost, IReply, ReplyDto } from '../../../entity'
+import {
+  EntityType,
+  getReplyKey,
+  IPost,
+  IReply,
+  ReplyDto,
+} from '../../../entity'
 import { InternalServerError, UserFriendlyError } from '../../../err'
 import { authorize } from '../../../lib/authorize'
 import { Out } from '../../../lib/out'
@@ -57,6 +63,9 @@ export async function createReply(request: Request): Promise<Response> {
   const replyId = `${postId}_${dateTimeStr}_${hash}`
 
   const reply: IReply = {
+    t: EntityType.IReply,
+    v: 1,
+
     id: replyId,
     authorUserId: user.id,
     title: input.title,

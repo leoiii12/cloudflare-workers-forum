@@ -1,3 +1,5 @@
+/* USERS-POSTS */
+
 export function getUsersPostsKey(userId: string, postId?: string) {
   if (postId === undefined) {
     return `USERS-POSTS-userId#${userId}`
@@ -14,6 +16,8 @@ export function getPostIdFromUsersPostsKey(key: string) {
   }
   return matches[1]
 }
+
+/* CATEGORIES-POSTS */
 
 export function getCategoriesPostsKey(categoryId: string, postId?: string) {
   if (postId === undefined) {

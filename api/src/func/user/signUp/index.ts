@@ -11,7 +11,7 @@ import {
 
 import { KVNamespace } from '@cloudflare/workers-types'
 
-import { getUserKey, IUser, Role, UserDto } from '../../../entity'
+import { EntityType, getUserKey, IUser, Role, UserDto } from '../../../entity'
 import { UserFriendlyError } from '../../../err'
 import { sha256Encode } from '../../../lib/crypto'
 import { Out } from '../../../lib/out'
@@ -57,6 +57,9 @@ export async function signUp(request: Request): Promise<Response> {
 
   const userId = await sha256Encode(`${input.emailAddress}-${random(8)}`)
   const user: IUser = {
+    t: EntityType.IUser,
+    v: 1,
+
     id: userId,
     emailAddress: input.emailAddress,
     name: input.name,

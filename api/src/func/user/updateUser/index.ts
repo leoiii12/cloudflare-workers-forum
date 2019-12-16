@@ -4,7 +4,7 @@ import { IsDefined, IsString } from 'class-validator'
 import { KVNamespace } from '@cloudflare/workers-types'
 
 import { getUserKey } from '../../../entity'
-import { getCachedVal } from '../../../lib/cache'
+import { getCachedEntityVal } from '../../../lib/cache'
 import { Out } from '../../../lib/out'
 
 declare const USERS: KVNamespace
@@ -22,7 +22,7 @@ export async function updateUser(request: Request): Promise<Response> {
     json,
   )) as UpdateUserInput
 
-  await getCachedVal(getUserKey(input.id), USERS, 'USERS', true)
+  await getCachedEntityVal(getUserKey(input.id), USERS, 'USERS', true)
 
   return Out.ok()
 }

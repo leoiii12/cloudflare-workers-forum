@@ -6,6 +6,7 @@ import { KVNamespace } from '@cloudflare/workers-types'
 import {
   CategoryDto,
   CategoryStatus,
+  EntityType,
   getCategoryKey,
   ICategory,
 } from '../../../entity'
@@ -44,6 +45,9 @@ export async function createCategory(request: Request): Promise<Response> {
   }
 
   const category: ICategory = {
+    t: EntityType.ICategory,
+    v: 1,
+
     id: categoryId,
     title: input.title,
     createUserId: user.id,

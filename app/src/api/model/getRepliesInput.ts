@@ -12,4 +12,5 @@
 
 export interface GetRepliesInput {
   postId: string
+  skip: number
 }

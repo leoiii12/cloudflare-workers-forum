@@ -31,8 +31,8 @@ export class ReplyService {
 
   constructor(private defaultService: DefaultService) {}
 
-  public getReplies(postId: string): Observable<ReplyDto[]> {
-    return this.defaultService.replyGetRepliesPost({ postId }).pipe(
+  public getReplies(postId: string, skip: number): Observable<ReplyDto[]> {
+    return this.defaultService.replyGetRepliesPost({ postId, skip }).pipe(
       map(getRepliesOutput => {
         const replies = (this.postIdReplies[postId] = getRepliesOutput.replies)
         const hasCachedReplies =

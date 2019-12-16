@@ -4,7 +4,7 @@ import { IsDefined, IsString } from 'class-validator'
 import { KVNamespace } from '@cloudflare/workers-types'
 
 import { getUserKey, IUser, UserDto } from '../../../entity'
-import { getCachedVals } from '../../../lib/cache'
+import { getCachedEntityVals } from '../../../lib/cache'
 import { parseVals } from '../../../lib/list'
 import { Out } from '../../../lib/out'
 
@@ -29,7 +29,7 @@ export async function getUsers(request: Request): Promise<Response> {
 
   const userKeys = input.ids.map(id => getUserKey(id))
 
-  const userVals = await getCachedVals(userKeys, USERS, 'USERS')
+  const userVals = await getCachedEntityVals(userKeys, USERS, 'USERS')
   const users = parseVals<IUser>(userVals)
   const userDtos = users.map(u => UserDto.from(u))
 

@@ -6,5 +6,7 @@ export * from './user'
 
 export * from './accessTokenObj'
 
+export * from './entityType'
+
 export * from './routeModule'
 export * from './routeObj'

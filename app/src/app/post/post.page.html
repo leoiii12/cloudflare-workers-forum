@@ -51,8 +51,14 @@
 
   </div>
 
-  <div class="ion-text-center ion-margin-vertical">
-    <ion-spinner *ngIf="replies === undefined"></ion-spinner>
+  <div *ngIf="replies === undefined" class="ion-text-center ion-margin-vertical">
+    <ion-spinner></ion-spinner>
   </div>
+
+  <ion-infinite-scroll *ngIf="replies !== undefined && pageControls.hasMoreReplies" threshold="100px" (ionInfinite)="onInfinite($event)">
+    <div class="ion-text-center ion-margin-vertical">
+      <ion-spinner></ion-spinner>
+    </div>
+  </ion-infinite-scroll>
 
 </ion-content>

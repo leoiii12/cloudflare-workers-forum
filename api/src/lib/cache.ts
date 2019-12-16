@@ -1,49 +1,46 @@
-import * as pLimit from 'p-limit'
-
 import { KVNamespace } from '@cloudflare/workers-types'
 
 declare const caches: { default: any }
 
-export async function getCachedVal(
+export async function getCachedEntityVal(
   key: string,
   kvNamespace: KVNamespace,
   cacheNamespace: string,
   isForceRefreshing: boolean = false,
 ): Promise<string | null> {
   if (isForceRefreshing === false) {
-    const cachedValRes = (await caches.default.match(
+    const cachedEntityValRes = (await caches.default.match(
       `https://cache.lecom.cloud/${cacheNamespace}/${key}`,
     )) as Response
-    if (cachedValRes !== undefined && cachedValRes !== null) {
+    if (cachedEntityValRes !== undefined && cachedEntityValRes !== null) {
       console.log(
         `Cache hitted. key=[${key}], kvNamespace=[${kvNamespace}], cacheNamespace=[${cacheNamespace}].`,
       )
-      return cachedValRes.text()
+      return cachedEntityValRes.text()
     }
   }
 
-  const val = await kvNamespace.get(key)
-  if (val === null) {
+  const entityVal = await kvNamespace.get(key)
+  if (entityVal === null) {
     return null
   }
 
   await caches.default.put(
     `https://cache.lecom.cloud/${cacheNamespace}/${key}`,
-    new Response(val),
+    new Response(entityVal),
   )
 
-  return val
+  return entityVal
 }
 
-export async function getCachedVals(
+export async function getCachedEntityVals(
   keys: string[],
   kvNamespace: KVNamespace,
   cacheNamespace: string,
+  isForceRefreshing: boolean = false,
 ) {
-  const limit = pLimit.default(40)
-
   const promises = keys.map(k => {
-    return limit(() => getCachedVal(k, kvNamespace, cacheNamespace))
+    return getCachedEntityVal(k, kvNamespace, cacheNamespace)
   })
 
   return Promise.all(promises)
