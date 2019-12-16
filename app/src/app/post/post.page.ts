@@ -4,6 +4,7 @@ import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { PopoverController } from '@ionic/angular'
 
+import { map } from 'rxjs/operators'
 import { PostDto, ReplyDto } from '../../api'
 import {
   CreateReplyComponent,
@@ -20,7 +21,14 @@ import { ReplyService } from '../reply.service'
 export class PostPage implements OnInit {
   public postId: string
   public post: PostDto
+
   public replies: ReplyDto[]
+  public replyKeys: Set<string> = new Set()
+  public skip: number = 0
+
+  public pageControls = {
+    hasMoreReplies: true,
+  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -58,6 +66,11 @@ export class PostPage implements OnInit {
     this.getReplies().subscribe(replies => (this.replies = replies))
   }
 
+  public onInfinite(ev: any) {
+    this.getReplies().subscribe(replies => (this.replies = replies))
+    ev.target.complete()
+  }
+
   public trackByFn(idx: number, item: { id: string }) {
     return item.id
   }
@@ -67,6 +80,27 @@ export class PostPage implements OnInit {
   }
 
   private getReplies() {
-    return this.replyService.getReplies(this.postId)
+    const existingReplies = this.replies || []
+
+    return this.replyService
+      .getReplies(this.postId, Math.floor(existingReplies.length / 20) * 20)
+      .pipe(
+        map(replies => {
+          this.pageControls.hasMoreReplies = replies.length >= 20
+
+          return replies
+        }),
+        map(replies => {
+          return replies.filter(r => this.replyKeys.has(r.id) === false)
+        }),
+        map(replies => {
+          replies.forEach(r => this.replyKeys.add(r.id))
+
+          if (existingReplies.length === 0) {
+            return replies
+          }
+          return existingReplies.concat(replies)
+        }),
+      )
   }
 }
