@@ -1,0 +1,12 @@
+name = "forum"
+type = "webpack"
+account_id = ""
+workers_dev = true
+
+[site]
+bucket = "./www/"
+entry-point = "workers-site"
+
+[env.production]
+zone_id = ""
+route = ""
