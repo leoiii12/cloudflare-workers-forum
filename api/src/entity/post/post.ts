@@ -9,6 +9,8 @@ export interface IPost {
   paragraphs: string[]
   authorUserId: string
   createMillis: number
+
+  categoryId: string
 }
 
 export class PostDto {

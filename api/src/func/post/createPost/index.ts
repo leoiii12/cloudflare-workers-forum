@@ -74,6 +74,8 @@ export async function createPost(request: Request): Promise<Response> {
     title: input.title,
     paragraphs: input.paragraphs,
     createMillis: getTime(createDateTime),
+
+    categoryId: input.categoryId,
   }
 
   await POSTS.put(getPostKey(dateTimeStr, hash), JSON.stringify(post))

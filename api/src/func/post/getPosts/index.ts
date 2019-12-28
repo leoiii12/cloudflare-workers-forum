@@ -1,52 +1,50 @@
 import { transformAndValidate } from 'class-transformer-validator'
-import { IsString } from 'class-validator'
-import format from 'date-fns/format'
+import { IsString, MinLength, ValidateIf } from 'class-validator'
 
 import { KVNamespace } from '@cloudflare/workers-types'
 
-import {
-  getCategoriesPostsKey,
-  getPostIdFromCategoriesPostsKey,
-  getPostKey,
-  IPost,
-  PostDto,
-} from '../../../entity'
+import { IPost, PostDto, getPostKey } from '../../../entity'
 import { getCachedEntityVals } from '../../../lib/cache'
 import { parseVals } from '../../../lib/list'
 import { Out } from '../../../lib/out'
+import { GetPostIdsOutput } from '../getPostIds'
 
 declare const POSTS: KVNamespace
-declare const RELATIONS: KVNamespace
 
 export class GetPostsInput {
   @IsString()
-  public categoryId: string
+  @MinLength(10)
+  public categoryId?: string
 }
 
 export class GetPostsOutput {
   constructor(public posts: PostDto[], public numOfPosts: number) {}
 }
 
-async function getPostIdsByCategoryId(categoryId: string) {
-  const relationKeysRes = await RELATIONS.list({
-    prefix: getCategoriesPostsKey(categoryId),
-  })
-  const postIds = relationKeysRes.keys
-    .map(key => getPostIdFromCategoriesPostsKey(key.name))
-    .filter(key => key != null) as string[]
-
-  return postIds
-}
-
 export async function getPostIds(categoryId: string | undefined | null) {
   if (categoryId) {
-    return getPostIdsByCategoryId(categoryId)
+    const getPostIdsRes = await fetch(
+      'https://forum-api.lecom.cloud/post/getPostIds',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          categoryId:
+            '31d8d48a7adaae3234afe59d5c702c90144cb5fde976567a9f50ce601b2a9227',
+        }),
+      },
+    )
+
+    return (await getPostIdsRes.json()) as Out<GetPostIdsOutput>
   }
 
-  const postKeysRes = await POSTS.list({
-    prefix: getPostKey(format(new Date(), 'yyyyLLddHHmm')),
-  })
-  return postKeysRes.keys.map(k => k.name)
+  const getPostIdsRes = await fetch(
+    'https://forum-api.lecom.cloud/post/getPostIds',
+    {
+      method: 'POST',
+    },
+  )
+
+  return (await getPostIdsRes.json()) as Out<GetPostIdsOutput>
 }
 
 export async function getPosts(request: Request): Promise<Response> {
@@ -56,7 +54,8 @@ export async function getPosts(request: Request): Promise<Response> {
     json,
   )) as GetPostsInput
 
-  const postIds = await getPostIds(input.categoryId)
+  const postIdsRes = await getPostIds(input.categoryId)
+  const postIds = postIdsRes.data.postIds
   const postKeys = postIds.map(id => getPostKey(id))
 
   const postVals = await getCachedEntityVals(postKeys, POSTS, 'POSTS')

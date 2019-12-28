@@ -7,6 +7,7 @@ import {
   GetUserPostsInput,
   GetUserPostsOutput,
 } from './getUserPosts'
+import { GetPostIdsInput, GetPostIdsOutput, getPostIds } from './getPostIds'
 
 export const PostModule: IRouteModule = {
   createPost: {
@@ -15,6 +16,13 @@ export const PostModule: IRouteModule = {
     input: CreatePostInput,
     output: CreatePostOutput,
     func: createPost,
+  },
+  getPostIds: {
+    path: '/post/getPostIds',
+    methods: ['POST'],
+    input: GetPostIdsInput,
+    output: GetPostIdsOutput,
+    func: getPostIds,
   },
   getPost: {
     path: '/post/getPost',

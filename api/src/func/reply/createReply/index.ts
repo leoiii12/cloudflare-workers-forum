@@ -11,6 +11,7 @@ import {
   IPost,
   IReply,
   ReplyDto,
+  getCategoriesRevDateTimeStrPostsKey,
 } from '../../../entity'
 import { InternalServerError, UserFriendlyError } from '../../../err'
 import { authorize } from '../../../lib/authorize'
@@ -20,6 +21,7 @@ import { random } from '../../../lib/str'
 declare const USERS: KVNamespace
 declare const POSTS: KVNamespace
 declare const REPLIES: KVNamespace
+declare const RELATIONS: KVNamespace
 
 export class CreateReplyInput {
   @IsDefined()
@@ -59,6 +61,8 @@ export async function createReply(request: Request): Promise<Response> {
 
   const postId = post.id
   const dateTimeStr = format(createDateTime, 'yyyyLLddHHmmssSSS')
+  const revDateTimeStr =
+    '' + (99999999999999 - parseInt(dateTimeStr.substr(0, 14), undefined))
   const hash = random(8)
   const replyId = `${postId}_${dateTimeStr}_${hash}`
 
@@ -77,6 +81,14 @@ export async function createReply(request: Request): Promise<Response> {
   await REPLIES.put(
     getReplyKey(postId, dateTimeStr, hash),
     JSON.stringify(reply),
+  )
+  await RELATIONS.put(
+    getCategoriesRevDateTimeStrPostsKey(
+      post.categoryId,
+      revDateTimeStr,
+      postId,
+    ),
+    JSON.stringify({ categoryId: post.categoryId, dateTimeStr, postId }),
   )
 
   const replyVal = await REPLIES.get(getReplyKey(postId, dateTimeStr, hash))
