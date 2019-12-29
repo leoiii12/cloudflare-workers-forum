@@ -77,6 +77,7 @@ export class AppComponent {
   }
 
   public onClickRefresh(ev: Event) {
+    this.posts = []
     this.getPosts(this.categoryId).subscribe(posts => (this.posts = posts))
   }
 
