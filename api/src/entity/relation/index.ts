@@ -9,12 +9,12 @@ export function getUsersPostsKey(userId: string, postId?: string) {
 }
 
 const usersPostsRegExp = new RegExp(/USERS-POSTS-userId#\w+-postId#(.*)/)
-export function getPostIdFromUsersPostsKey(key: string) {
+export function getElementsFromUsersPostsKey(key: string) {
   const matches = usersPostsRegExp.exec(key)
   if (matches === null) {
     return null
   }
-  return matches[1]
+  return matches
 }
 
 /* CATEGORIES-POSTS */
