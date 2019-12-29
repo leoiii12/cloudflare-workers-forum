@@ -1,5 +1,5 @@
 import { LocalStorage } from 'ngx-store'
-import { map } from 'rxjs/operators'
+import { map, flatMap } from 'rxjs/operators'
 
 import { Injectable } from '@angular/core'
 
@@ -27,9 +27,14 @@ export class PostService {
 
   public getPosts(categoryId: string) {
     return this.defaultService
-      .postGetPostsPost({
-        categoryId,
-      })
+      .postGetPostIdsPost({ categoryId })
+      .pipe(
+        flatMap(getPostIdsOutput => {
+          return this.defaultService.postGetPostsPost({
+            postIds: getPostIdsOutput.postIds,
+          })
+        }),
+      )
       .pipe(
         map(getPostsOutput => {
           const posts = (this.posts = getPostsOutput.posts)

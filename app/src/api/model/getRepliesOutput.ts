@@ -13,4 +13,5 @@ import { ReplyDto } from './replyDto'
 
 export interface GetRepliesOutput {
   replies: Array<ReplyDto>
+  numOfReplies: number
 }

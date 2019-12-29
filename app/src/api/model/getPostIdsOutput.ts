@@ -9,8 +9,7 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { PostDto } from './postDto'
 
-export interface GetUserPostsOutput {
-  posts: Array<PostDto>
+export interface GetPostIdsOutput {
+  postIds: Array<string>
 }

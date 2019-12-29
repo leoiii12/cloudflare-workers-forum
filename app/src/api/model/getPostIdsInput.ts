@@ -10,6 +10,7 @@
  * Do not edit the class manually.
  */
 
-export interface GetUserPostsInput {
-  userId: string
+export interface GetPostIdsInput {
+  categoryId?: string
+  userId?: string
 }

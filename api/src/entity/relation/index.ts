@@ -17,27 +17,6 @@ export function getElementsFromUsersPostsKey(key: string) {
   return matches
 }
 
-/* CATEGORIES-POSTS */
-
-export function getCategoriesPostsKey(categoryId: string, postId?: string) {
-  if (postId === undefined) {
-    return `CATEGORIES-POSTS-categoryId#${categoryId}`
-  }
-
-  return `CATEGORIES-POSTS-categoryId#${categoryId}-postId#${postId}`
-}
-
-const categoriesPostsRegExp = new RegExp(
-  /CATEGORIES-POSTS-categoryId#\w+-postId#(.*)/,
-)
-export function getPostIdFromCategoriesPostsKey(key: string) {
-  const matches = categoriesPostsRegExp.exec(key)
-  if (matches === null) {
-    return null
-  }
-  return matches[1]
-}
-
 /* CATEGORIES-RDTSS-POSTS */
 
 export function getCategoriesRevDateTimeStrPostsKey(

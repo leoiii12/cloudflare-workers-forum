@@ -11,10 +11,9 @@ import {
   getCategoryKey,
   getPostKey,
   getUsersPostsKey,
-  Input,
   IPost,
-  Output,
   PostDto,
+  getCategoriesRevDateTimeStrPostsKey,
 } from '../../../entity'
 import { InternalServerError, UserFriendlyError } from '../../../err'
 import { authorize } from '../../../lib/authorize'
@@ -26,7 +25,7 @@ declare const POSTS: KVNamespace
 declare const RELATIONS: KVNamespace
 declare const CATEGORIES: KVNamespace
 
-export class CreatePostInput implements Input {
+export class CreatePostInput {
   @IsDefined()
   @IsString()
   public title: string
@@ -40,7 +39,7 @@ export class CreatePostInput implements Input {
   public categoryId: string
 }
 
-export class CreatePostOutput implements Output {
+export class CreatePostOutput {
   constructor(public post: PostDto) {}
 }
 
@@ -62,6 +61,8 @@ export async function createPost(request: Request): Promise<Response> {
   const createDateTime = new Date()
 
   const dateTimeStr = format(createDateTime, 'yyyyLLddHHmmssSSS')
+  const revDateTimeStr =
+    '' + (99999999999999 - parseInt(dateTimeStr.substr(0, 14), undefined))
   const hash = random(8)
   const postId = `${dateTimeStr}_${hash}`
 
@@ -84,8 +85,12 @@ export async function createPost(request: Request): Promise<Response> {
     JSON.stringify({ userId: user.id, postId }),
   )
   await RELATIONS.put(
-    getCategoriesPostsKey(input.categoryId, postId),
-    JSON.stringify({ categoryId: input.categoryId, postId }),
+    getCategoriesRevDateTimeStrPostsKey(
+      post.categoryId,
+      revDateTimeStr,
+      postId,
+    ),
+    JSON.stringify({ categoryId: post.categoryId, dateTimeStr, postId }),
   )
 
   const postVal = await POSTS.get(getPostKey(postId))
