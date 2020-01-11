@@ -9,13 +9,14 @@ import { CreatePostInput, DefaultService, PostDto } from '../api'
   providedIn: 'root',
 })
 export class PostService {
+  public postIds: string = []
   public posts: PostDto[] = []
 
   /**
    * The posts just posted in this client,
    * may not shown in the server immediately
    */
-  @LocalStorage() public myPosts: PostDto[] = []
+  @LocalStorage() public cachedPosts: PostDto[] = []
 
   constructor(private defaultService: DefaultService) {}
 
@@ -23,6 +24,10 @@ export class PostService {
     return this.defaultService
       .postGetPostPost({ postId })
       .pipe(map(getPostOutput => getPostOutput.post))
+  }
+
+  public getPostIds(categoryId: string) {
+    if ()
   }
 
   public getPosts(categoryId: string) {
@@ -39,19 +44,19 @@ export class PostService {
         map(getPostsOutput => {
           const posts = (this.posts = getPostsOutput.posts)
           const hasCachedPosts =
-            Array.isArray(this.myPosts) && this.myPosts.length > 0
+            Array.isArray(this.cachedPosts) && this.cachedPosts.length > 0
           if (hasCachedPosts === false) {
             return posts
           }
 
           const replyIds = posts.map(r => r.id)
-          const myPosts = this.myPosts.filter(
+          const cachedPosts = this.cachedPosts.filter(
             r => replyIds.includes(r.id) === false,
           )
 
-          this.myPosts = myPosts
+          this.cachedPosts = cachedPosts
 
-          return myPosts.concat(posts)
+          return cachedPosts.reverse().concat(posts)
         }),
       )
   }
@@ -59,7 +64,7 @@ export class PostService {
   public createPost(input: CreatePostInput) {
     return this.defaultService.postCreatePostPost(input).pipe(
       map(createPostOutput => {
-        this.myPosts.push(createPostOutput.post)
+        this.cachedPosts.push(createPostOutput.post)
 
         return createPostOutput
       }),

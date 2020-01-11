@@ -36,7 +36,9 @@ export class GetPostIdsOutput {
   constructor(public postIds: string[]) {}
 }
 
-async function getPostIdsByUser(user: IUser) {
+async function getPostIdsByUser(
+  user: IUser,
+): Promise<{ postIds: string[]; cursor: string }> {
   const postIds = new Set<string>()
 
   for (let i = 0, cursor: string | undefined; i < 45; i++) {
@@ -59,7 +61,7 @@ async function getPostIdsByUser(user: IUser) {
     }
   }
 
-  return Array.from(postIds)
+  return { postIds: Array.from(postIds), cursor: '' }
 }
 
 async function getPostIdsByCategory(category: ICategory) {
