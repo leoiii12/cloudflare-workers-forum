@@ -1,7 +1,10 @@
 {
-    "cSpell.words": [
-        "millis",
-        "subrequest",
-        "subrequests"
-    ]
+  "cSpell.words": [
+    "millis",
+    "subrequest",
+    "subrequests"
+  ],
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
